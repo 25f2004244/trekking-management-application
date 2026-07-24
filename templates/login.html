@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/main.css">
+    <title>Login-Trekkers</title>
+</head>
+
+<body>
+    <div class="container">
+        <div class="center">
+            <h1>Welcome Back</h1>
+        </div>
+        <div class="input-form">
+            <form method="post">
+                <table class="center">
+                    <tr>
+                        <td><label for="email">Email Id</label></td>
+                        <td><input type="email" name="email" id="email" placeholder="example@gmail.com"></td>
+                    </tr>
+
+                    <tr>
+                        <td><label for="password">Password</label></td>
+                        <td><input type="password" name="password" id="password"></td>
+                    </tr>
+                    <tr>
+                        <td colspan="2" style="text-align: center;">
+                            <button type="submit">Login</button>
+                        </td>
+                    </tr>
+                    <br>
+
+                </table>
+                <a href="{{url_for('signup')}}">New User?</a>
+            </form>
+        </div>
+    </div>
+
+</body>
+
+</html>
