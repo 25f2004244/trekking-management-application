@@ -1,12 +1,8 @@
 .container{
     border: 2px solid black;
     border-radius: 5px;
-
 }
 
-.panel{
-
-}
 
 .center{
     text-align: center;
@@ -19,7 +15,7 @@
 .input-form {
     border: 5px solid blue;
     width: 600px;
-    height: 300px;
+    height: auto;
     margin: auto;
     border-radius: 5px;
     font-size: 20px;

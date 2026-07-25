@@ -10,15 +10,16 @@
 
 <body>
     <div class="container">
-        <div class="center">
-            <h1>Welcome to Trekkers</h1>
+
+        <div class="center"><h1>Welcome to Trekkers</h1>
         </div>
         <div class="input-form">
             <form method="post" action="{{url_for('signup')}}">
                 <h3>Register New User</h3>
                 <table class="center">
                     <tr>
-                        <td><span>Registering as </span><select name="role" id="role">
+                        <td><span>Registering as </span></td>
+                        <td><select name="role" id="role">
                                 <option value="user">User</option>
                                 <option value="staff">Staff</option>
                             </select>
@@ -45,7 +46,7 @@
                     <br>
 
                 </table>
-                <a href="{{url_for('login')}}">Already a user?</a>
+                <span>Already an user?</span><a href="{{url_for('login')}}">Login</a><br><br>
             </form>
         </div>
     </div>
