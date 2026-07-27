@@ -2,12 +2,15 @@ from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 db = SQLAlchemy()
 
+
+
 class user(db.Model):
     user_id = db.Column(db.Integer , primary_key = True , autoincrement = True)
     username = db.Column(db.String(50),nullable=False)
     role=db.Column(db.String(20),nullable=False)
     email=db.Column(db.String(50),unique=True,nullable=False)
     password=db.Column(db.String(20),nullable=False)
+    is_approved = db.Column(db.Boolean, default=False)
 
     bookings = db.relationship('booking', backref='user')
 
@@ -30,7 +33,7 @@ class trek(db.Model):
     difficulty = db.Column(db.String(20),nullable=False)
     duration = db.Column(db.Integer,nullable=False)
     slots = db.Column(db.Integer,nullable=False)
-    assigned_staff = db.Column(db.Integer,db.ForeignKey(staff.staff_id))
+    assigned_staff = db.Column(db.Integer,db.ForeignKey(staff.staff_id),nullable=False)
     status = db.Column(db.String(20),nullable=False)
 
     bookings = db.relationship('booking', backref='trek')

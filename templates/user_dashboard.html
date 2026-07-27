@@ -1,12 +1,18 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard</title>
-</head>
-<body>
+{%extends "base.html"%}
+
+{%block title%}Dashboard{%endblock%}
+{%block content%}
+
+<div>
     <h1>DASHBOARD</h1>
+    {{users}}
     <p>{{email}} and {{password}}</p>
-</body>
-</html>
+</div>
+
+{%for u in users%}
+<p>{{u.email}}</p>
+<p>{{u.username}}</p>
+{%endfor%}
+
+
+{%endblock%}

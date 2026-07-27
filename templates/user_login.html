@@ -1,32 +1,31 @@
 {%extends "base.html"%}
 
-{%block title%}Login-Admin{%endblock%}
-
+{%block title%}Login-Trekkers{%endblock%}
 {%block content%}
+
 <div class="input-form">
     <form method="post">
+        <h3>Login here</h3>
         <table class="center">
             <tr>
-            <tr>
                 <td><label for="email">Email Id</label></td>
-                <td><input type="email" name="email" id="email"></td>
+                <td><input type="email" name="email" id="email" placeholder="example@gmail.com"></td>
             </tr>
 
             <tr>
                 <td><label for="password">Password</label></td>
                 <td><input type="password" name="password" id="password"></td>
             </tr>
-            <br>
             <tr>
                 <td colspan="2" style="text-align: center;">
                     <button type="submit">Login</button>
                 </td>
             </tr>
-        </table><br>
+            <br>
+
+        </table>
+        <span>Not have an account?</span><a href="{{url_for('signup')}}">Sign Up</a><br><br>
     </form>
 </div>
 
 {%endblock%}
-
-
-
