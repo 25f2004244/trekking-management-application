@@ -153,14 +153,6 @@ def signup():
 
 
 # DASHBOARDS
-@app.route('/user_dashboard',methods=['GET','POST'])
-def user_dashboard():
-    if 'role' not in session or session['role'] != 'user':
-        return redirect(url_for('user_login'))
-    return render_template('user_dashboard.html')
-
-
-
 
 @app.route('/staff_dashboard',methods=['GET','POST'])
 def staff_dashboard():
@@ -189,31 +181,24 @@ def admin_dashboard():
 
     section=request.args.get('section','dashboard')
     data = None
+    
+    total_staff = user_model.query.filter_by(role='staff',is_active=True,is_approved=True).count()
     approved_staff = user_model.query.filter_by(role='staff', is_approved=True,is_active=True).all()
     not_approved_staff = user_model.query.filter_by(role='staff', is_approved=False,is_active=True).all()
     blacklisted_staff = user_model.query.filter_by(role='staff', is_active=False).all()
 
     blacklisted_users = user_model.query.filter_by(role='user', is_active=False).all()
-
-
     total_users = user_model.query.filter_by(role='user',is_active=True).count()
-    # users = user_model.query.filter_by(role='user',is_active=True).all()
-
-    total_staff = user_model.query.filter_by(role='staff',is_active=True,is_approved=True).count()
 
     total_treks = trek_model.query.count()
-    # treks = trek_model.query.all()
 
     total_bookings = booking_model.query.count()
-    # bookings = booking_model.query.all()
-
 
     if section == 'users':
-        data = user_model.query.filter_by(role='user',is_active=True).all()
+        data = user_model.query.filter_by(role='user').all()
 
     elif section == 'staff':
         data = user_model.query.filter_by(role='staff').all()
-
 
     elif section == 'bookings':
         data = booking_model.query.all()
@@ -298,26 +283,56 @@ def delete_trek(id):
 
 
 
-@app.route('/trek_manage')
-def trek_manage():
-    return render_template("trek_manage")
 
 
-@app.route('/staff_manage')
-def staff_manage():
-    return render_template("staff_manage")
 
 
-@app.route('/user_manage')
-def user_manage():
-    return render_template("user_manage")
+@app.route('/user_dashboard',methods=['GET','POST'])
+def user_dashboard():
+    if 'role' not in session or session['role'] != 'user':
+        return redirect(url_for('user_login'))
 
 
-@app.route('/bookings_manage')
-def bookings_manage():
-    return render_template("bookings_manage")
+    section = request.args.get('section','dashboard')
+    data=None
+    bookings=booking_model.query.filter_by(user_id=session['user_id']).all()
+    user_treks = [b.trek_id for b in bookings]
 
 
+
+    if section == 'treks':
+        data=trek_model.query.filter_by(status='open').all()
+   
+    return render_template('user_dashboard.html',section=section,data=data,bookings=bookings,user_treks=user_treks)
+
+
+@app.route('/book_trek/<int:id>', methods=['POST'])
+def book_trek(id):
+    if 'user_id' not in session:
+        return redirect(url_for('user_login'))
+
+    existing = booking_model.query.filter_by(
+        user_id=session['user_id'],
+        trek_id=id
+    ).first()
+
+    if existing:
+        return "Already booked"
+
+    total = booking_model.query.filter_by(trek_id=id).count()
+    t = trek_model.query.get(id)
+    if not t:
+        return 'Trek Not Found'
+    if t.slots <= 0:
+        return "No slots available"
+    
+    new_booking = booking_model(user_id=session['user_id'],trek_id=id)
+
+    db.session.add(new_booking)
+    t.slots -= 1
+    db.session.commit()
+
+    return redirect(url_for('user_dashboard', section='bookings'))
 
 
 
