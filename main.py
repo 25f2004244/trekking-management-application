@@ -1,5 +1,5 @@
 from flask import Flask, render_template,redirect,url_for,request,session
-from model import db, user as user_model , staff as staff_model , trek as trek_model , booking as booking_model
+from model import db, user as user_model , trek as trek_model , booking as booking_model
 
 
 app = Flask(__name__)
@@ -8,6 +8,13 @@ app.secret_key='trek-secret-key'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
 
 db.init_app(app)
+
+# users = user_model.query.all()
+# for user in users:
+#     user.is_active = True
+# db.session.commit()
+
+
 
 
 with app.app_context():
@@ -52,7 +59,7 @@ def user_login():
         password = request.form.get('password')
 
         # check_admin = user_model.query.filter_by(email='admin@gmail.com',password='admin').first()
-        check_user = user_model.query.filter_by(email=email,password=password,role='user').first()
+        check_user = user_model.query.filter_by(email=email,password=password,role='user',is_active=True).first()
 
         if check_user:
             session['user_id'] = check_user.user_id
@@ -72,10 +79,10 @@ def staff_login():
         email = request.form.get('email')
         password = request.form.get('password')
 
-        check_staff = user_model.query.filter_by(email=email,password=password,role='staff').first()
+        check_staff = user_model.query.filter_by(email=email,password=password,role='staff',is_active=True).first()
 
         if check_staff:
-            if not check_staff.is_approved:
+            if not (check_staff.is_approved):
                 return render_template('staff_login.html', error="Wait for admin approval")
 
             session['user_id'] = check_staff.user_id
@@ -134,13 +141,7 @@ def signup():
         else:
             is_approved = True
 
-        user_details = user_model(
-            username=username,
-            email=email,
-            password=password,
-            role=role,
-            is_approved=is_approved
-        )
+        user_details = user_model(username=username,email=email,password=password,role=role,is_approved=is_approved)
 
         db.session.add(user_details)
         db.session.commit()
@@ -159,11 +160,6 @@ def user_dashboard():
     return render_template('user_dashboard.html')
 
 
-@app.route('/admin_dashboard',methods=['GET','POST'])
-def admin_dashboard():
-    if 'role' not in session or session['role'] != 'admin':
-        return redirect(url_for('admin_login'))
-    return render_template('admin_dashboard.html')
 
 
 @app.route('/staff_dashboard',methods=['GET','POST'])
@@ -182,32 +178,152 @@ def logout():
 
 
 
-# @app.route('/search/<string:name>',methods=['GET'])
-# def search(name):
-#     return render_template('search.html')
+
+
+
+@app.route('/admin_dashboard',methods=['GET','POST'])
+def admin_dashboard():
+    if 'role' not in session or session['role'] != 'admin':
+        return redirect(url_for('admin_login'))
+
+
+    section=request.args.get('section','dashboard')
+    data = None
+    approved_staff = user_model.query.filter_by(role='staff', is_approved=True,is_active=True).all()
+    not_approved_staff = user_model.query.filter_by(role='staff', is_approved=False,is_active=True).all()
+    blacklisted_staff = user_model.query.filter_by(role='staff', is_active=False).all()
+
+    blacklisted_users = user_model.query.filter_by(role='user', is_active=False).all()
+
+
+    total_users = user_model.query.filter_by(role='user',is_active=True).count()
+    # users = user_model.query.filter_by(role='user',is_active=True).all()
+
+    total_staff = user_model.query.filter_by(role='staff',is_active=True,is_approved=True).count()
+
+    total_treks = trek_model.query.count()
+    # treks = trek_model.query.all()
+
+    total_bookings = booking_model.query.count()
+    # bookings = booking_model.query.all()
+
+
+    if section == 'users':
+        data = user_model.query.filter_by(role='user',is_active=True).all()
+
+    elif section == 'staff':
+        data = user_model.query.filter_by(role='staff').all()
+
+
+    elif section == 'bookings':
+        data = booking_model.query.all()
+
+    elif section == 'treks':
+        data = trek_model.query.all()
+
+    return render_template('admin_dashboard.html',section=section,data=data,total_users=total_users,total_staff=total_staff,total_treks=total_treks,total_bookings=total_bookings,approved_staff=approved_staff,not_approved_staff=not_approved_staff,blacklisted_staff=blacklisted_staff,blacklisted_users=blacklisted_users)
+
+
+@app.route('/add_trek',methods=['POST'])
+def add_trek():
+    name = request.form['name']
+    difficulty = request.form['difficulty']
+    duration = request.form['duration']
+    slots = request.form['slots']
+
+    new_trek = trek_model(name=name,difficulty=difficulty,duration=duration,slots=slots,assigned_staff=1)
+    db.session.add(new_trek)
+    db.session.commit()
+    return redirect(url_for('admin_dashboard', section='treks'))
+
+
+@app.route('/approve_staff/<int:id>')
+def approve_staff(id):
+    user = db.session.get(user_model, id)
+    user.is_approved = True
+    db.session.commit()
+    return redirect(url_for('admin_dashboard', section='staff'))
+
+@app.route('/remove_staff/<int:id>')
+def remove_staff(id):
+    user = db.session.get(user_model,id)
+    user.is_approved = False
+    db.session.commit()
+    return redirect(url_for('admin_dashboard',section='staff'))
+
+@app.route('/reject_staff/<int:id>',methods=['POST'])
+def reject_staff(id):
+    user = db.session.get(user_model,id)
+    user.is_approved = False
+    db.session.commit()
+    return redirect(url_for('admin_dashboard' , section='staff'))
+
+
+@app.route('/blacklist/<int:id>')
+def blacklist(id):
+    user = db.session.get(user_model,id)
+    if user.role=='staff':
+        user.is_active = False
+        db.session.commit()
+        return redirect(url_for('admin_dashboard', section='staff'))
+    elif user.role=='user':
+        user.is_active=False
+        db.session.commit()
+        return redirect(url_for('admin_dashboard',section='users'))
+
+
+@app.route('/remove_staff_blacklist/<int:id>')
+def remove_staff_blacklist(id):
+    user = db.session.get(user_model,id)
+    user.is_active = True
+    db.session.commit()
+    return redirect(url_for('admin_dashboard' , section='staff'))
+
+@app.route('/remove_user_blacklist/<int:id>')
+def remove_user_blacklist(id):
+    user = db.session.get(user_model,id)
+    user.is_active = True
+    db.session.commit()
+    return redirect(url_for('admin_dashboard' , section='users'))
+
+
+
+@app.route('/delete_trek/<int:id>')
+def delete_trek(id):
+    trek = db.session.get(user_model, id)
+    db.session.delete(trek)
+    db.commit()
+    return redirect(url_for('admin_dashboard', section='treks'))
+
+
+
+
+@app.route('/trek_manage')
+def trek_manage():
+    return render_template("trek_manage")
+
+
+@app.route('/staff_manage')
+def staff_manage():
+    return render_template("staff_manage")
+
+
+@app.route('/user_manage')
+def user_manage():
+    return render_template("user_manage")
+
+
+@app.route('/bookings_manage')
+def bookings_manage():
+    return render_template("bookings_manage")
 
 
 
 
 
 
-# @app.route('/staff_register',methods=['GET','POST'])
-# def staff_register():
-#     if request.method=='GET':
-#         return render_template('staff_register.html')
-#     elif request.method=='POST':
-#         username = request.form.get('username')
-#         email = request.form.get('email')
-#         password = request.form.get('password')
-#         check_staff = staff_model.query.filter_by(email=email).first()
 
-#         if check_staff:
-#             return render_template('login.html')
-#         elif not check_staff:
-#             user_details = staff_model(username=username,email=email,password=password,role='user')
-#             db.session.add(user_details)
-#             db.session.commit()
-#             return render_template('login.html')
+
 
 
 

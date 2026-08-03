@@ -8,14 +8,12 @@
     <title>{%block title%}{%endblock%}</title>
 </head>
 <body>
+    {% if user == 'admin'%}
+        <header>
+            <a href="{{url_for('{{admin_dashboard}}')}}"></a>
+        </header>
+    {%endif}
 
-    <header>
-        <a href="{{url_for('home')}}">Home</a>|
-        <a href="{{url_for('signup')}}">Signup</a>|
-        <a href="{{url_for('user_login')}}">Login</a>|
-        <a href="{{url_for('staff_login')}}">Staff</a>|
-        <a href="{{url_for('admin_login')}}">Admin</a>
-    </header>
     <div class="container">
         <div class="center"><h2>Welcome to Trekkers</h2></div>
 

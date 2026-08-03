@@ -11,6 +11,7 @@ class user(db.Model):
     email=db.Column(db.String(50),unique=True,nullable=False)
     password=db.Column(db.String(20),nullable=False)
     is_approved = db.Column(db.Boolean, default=False)
+    is_active = db.Column(db.Boolean, default=True)
 
     bookings = db.relationship('booking', backref='user')
 
@@ -18,11 +19,11 @@ class user(db.Model):
         return '<user (email=%s, username=%s)>' %(self.email,self.username)
 
 
-class staff(db.Model):
-    staff_id = db.Column(db.Integer,primary_key=True,autoincrement=True)
-    staff_name = db.Column(db.String(50),nullable=False)
+# class staff(db.Model):
+#     staff_id = db.Column(db.Integer,primary_key=True,autoincrement=True)
+#     staff_name = db.Column(db.String(50),nullable=False)
 
-    treks = db.relationship('trek', backref='staff')
+#     treks = db.relationship('trek', backref='staff')
 
 
 
@@ -33,8 +34,8 @@ class trek(db.Model):
     difficulty = db.Column(db.String(20),nullable=False)
     duration = db.Column(db.Integer,nullable=False)
     slots = db.Column(db.Integer,nullable=False)
-    assigned_staff = db.Column(db.Integer,db.ForeignKey(staff.staff_id),nullable=False)
-    status = db.Column(db.String(20),nullable=False)
+    assigned_staff = db.Column(db.Integer,db.ForeignKey(user.user_id),nullable=False)
+    status = db.Column(db.String(20),nullable=False,default='open')
 
     bookings = db.relationship('booking', backref='trek')
 
@@ -49,3 +50,6 @@ class booking(db.Model):
     booking_date = db.Column(db.DateTime,default=datetime.now)
     payment_status = db.Column(db.String(20),nullable=False)
 
+
+# class blacklist(db.Model):
+#     ...
