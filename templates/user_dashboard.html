@@ -10,7 +10,6 @@
 <div class="row-align">
     <a href="{{ url_for('user_dashboard') }}">Dashboard</a>
     <a href="{{ url_for('user_dashboard', section='treks') }}">Treks</a>
-    <a href="{{ url_for('user_dashboard', section='bookings') }}">Bookings</a>
     <a href="{{ url_for('logout') }}">Logout</a>
 </div>
 
@@ -18,8 +17,9 @@
 <h1 style="display: block; text-align: center;">Welcome User</h1>
 
 
+{% if section == 'dashboard' %}
 <div class="container">
-    {% if section == 'dashboard' %}
+
     <h2>Dashboard</h2>
     <div class="container">
         <h3>Your Bookings</h3>
@@ -39,8 +39,12 @@
     </div>
 
 
+
+
+
+    {% elif section == 'treks' %}
     <div class="container">
-        {% elif section == 'treks' %}
+
         <h2>Available Treks</h2>
 
         <table>
@@ -49,6 +53,7 @@
                 <th>Difficulty</th>
                 <th>Duration</th>
                 <th>Slots</th>
+                <th>Status</th>
                 <th>Action</th>
             </tr>
 
@@ -58,13 +63,21 @@
                 <td>{{ t.difficulty }}</td>
                 <td>{{ t.duration }}</td>
                 <td>{{ t.slots }}</td>
+                <td>{{t.status}}</td>
                 <td>
                     {% if t.trek_id in user_treks %}
+
                     Already Booked
+
+                    {% elif t.status != 'open' %}
+
+                    Not Available
+
                     {% elif t.slots <= 0 %} Slots Full {% else %} <form action="/book_trek/{{ t.trek_id }}"
                         method="POST">
                         <button type="submit">Book</button>
                         </form>
+
                         {% endif %}
                 </td>
             </tr>
@@ -73,25 +86,6 @@
     </div>
 
 
-
-    <div class="container">
-        {%elif section == 'bookings'%}
-        <h2>My Bookings</h2>
-
-        <table>
-            <tr class="trek-header">
-                <th>Trek Name</th>
-                <th>Status</th>
-            </tr>
-
-            {% for b in bookings %}
-            <tr class="trek-row">
-                <td>{{ b.trek.name }}</td>
-                <td>{{ b.booking_status }}</td>
-            </tr>
-            {% endfor %}
-        </table>
-    </div>
 
 
 

@@ -120,7 +120,7 @@
                         </select>
                     </td>
                     <td>
-                        <input type="submit" value="Add">
+                        <button type="submit">Add Trek</button>
                     </td>
                 </tr>
             </form>
@@ -183,69 +183,66 @@
 
     <div class="container">
         <h2>Blacklist</h2>
-        <div class="container">
-            <table>
-                <tr class="trek-header">
-                    <th>Username</th>
-                    <th>Email</th>
-                    <th>Action</th>
-                </tr>
-                {%for s in blacklisted_staff%}
-                <tr class="trek-row">
-                    <td>{{s.username}}</td>
-                    <td>{{s.email}}</td>
-                    <td>
-                        <a href="/remove_staff_blacklist/{{s.user_id}}">Remove from blacklist</a>
-                    </td>
-                </tr>
-                {%endfor%}
-            </table>
-        </div>
+        <table>
+            <tr class="trek-header">
+                <th>Username</th>
+                <th>Email</th>
+                <th>Action</th>
+            </tr>
+            {%for s in blacklisted_staff%}
+            <tr class="trek-row">
+                <td>{{s.username}}</td>
+                <td>{{s.email}}</td>
+                <td>
+                    <a href="/remove_staff_blacklist/{{s.user_id}}">Remove from blacklist</a>
+                </td>
+            </tr>
+            {%endfor%}
+        </table>
+    </div>
 
 
 
 
 
-        {%elif section=='users'%}
-        <h1 style="display: block; text-align: center;">Users</h1>
+    {%elif section=='users'%}
+    <h1 style="display: block; text-align: center;">Users</h1>
 
-        <h3>All Users</h3>
-        <div class="container">
-            <table>
-                <tr class="trek-header">
-                    <th>Username</th>
-                    <th>Email</th>
-                    <th>Action</th>
-                </tr>
-                {%for u in data%}
-                <tr class="trek-row">
-                    <td>{{u.username}}</td>
-                    <td>{{u.email}}</td>
-                    <td><a href="/blacklist/{{u.user_id}}">Add to Blacklist</a></td>
-                </tr>
-                {%endfor%}
-            </table>
-        </div>
+    <h3>All Users</h3>
+    <div class="container">
+        <table>
+            <tr class="trek-header">
+                <th>Username</th>
+                <th>Email</th>
+                <th>Action</th>
+            </tr>
+            {%for u in data%}
+            <tr class="trek-row">
+                <td>{{u.username}}</td>
+                <td>{{u.email}}</td>
+                <td><a href="/blacklist/{{u.user_id}}">Add to Blacklist</a></td>
+            </tr>
+            {%endfor%}
+        </table>
+    </div>
 
-        <h3>Blacklisted Users</h3>
-        <div class="container">
-            <table>
-                <tr class="trek-header">
-                    <th>Username</th>
-                    <th>Email</th>
-                    <th>Action</th>
-                </tr>
-                {%for u in blacklisted_users%}
-                <tr class="trek-row">
-                    <td>{{u.username}}</td>
-                    <td>{{u.email}}</td>
-                    <td><a href="/remove_user_blacklist/{{u.user_id}}">Remove from Blacklist</a></td>
-                </tr>
-                {%endfor%}
-            </table>
-        </div>
-
-
+    <h3>Blacklisted Users</h3>
+    <div class="container">
+        <table>
+            <tr class="trek-header">
+                <th>Username</th>
+                <th>Email</th>
+                <th>Action</th>
+            </tr>
+            {%for u in blacklisted_users%}
+            <tr class="trek-row">
+                <td>{{u.username}}</td>
+                <td>{{u.email}}</td>
+                <td><a href="/remove_user_blacklist/{{u.user_id}}">Remove from Blacklist</a></td>
+            </tr>
+            {%endfor%}
+        </table>
+    </div>
 
 
 
@@ -253,36 +250,33 @@
 
 
 
-        {% elif section == 'bookings' %}
-        <div class="container">
-            <h2>All Bookings</h2>
-
-            <table>
-                <tr class="trek-header">
-                    <th>User</th>
-                    <th>Trek</th>
-                    <th>Status</th>
-                    <th>Date</th>
-                </tr>
-
-                {% for b in data %}
-                <tr class="trek-row">
-                    <td>{{ b.user.username }}</td>
-                    <td>{{ b.trek.name }}</td>
-                    <td>{{ b.booking_status }}</td>
-                    <td>{{ b.booking_date }}</td>
-                </tr>
-                {% endfor %}
-            </table>
-
-            {% endif %}
-
-        </div>
 
 
+    {% elif section == 'bookings' %}
+    <div class="container">
+        <h2>All Bookings</h2>
 
+        <table>
+            <tr class="trek-header">
+                <th>User</th>
+                <th>Trek</th>
+                <th>Status</th>
+                <th>Date</th>
+            </tr>
 
+            {% for b in data %}
+            <tr class="trek-row">
+                <td>{{ b.user.username }}</td>
+                <td>{{ b.trek.name }}</td>
+                <td>{{ b.booking_status }}</td>
+                <td>{{ b.booking_date }}</td>
+            </tr>
+            {% endfor %}
+        </table>
 
+        {% endif %}
+
+    </div>
 
 
 
@@ -293,4 +287,9 @@
 
 
 
-        {%endblock%}
+
+
+
+
+
+    {%endblock%}

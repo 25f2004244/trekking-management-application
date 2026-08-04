@@ -154,11 +154,6 @@ def signup():
 
 # DASHBOARDS
 
-@app.route('/staff_dashboard',methods=['GET','POST'])
-def staff_dashboard():
-    if 'role' not in session or session['role'] != 'staff':
-        return redirect(url_for('staff_login'))
-    return render_template('staff_dashboard.html')
 
 
 
@@ -215,8 +210,9 @@ def add_trek():
     difficulty = request.form['difficulty']
     duration = request.form['duration']
     slots = request.form['slots']
+    staff_id=request.form['staff_id']
 
-    new_trek = trek_model(name=name,difficulty=difficulty,duration=duration,slots=slots,assigned_staff=1)
+    new_trek = trek_model(name=name,difficulty=difficulty,duration=duration,slots=slots,assigned_staff=staff_id)
     db.session.add(new_trek)
     db.session.commit()
     return redirect(url_for('admin_dashboard', section='treks'))
@@ -292,16 +288,13 @@ def user_dashboard():
     if 'role' not in session or session['role'] != 'user':
         return redirect(url_for('user_login'))
 
-
     section = request.args.get('section','dashboard')
     data=None
     bookings=booking_model.query.filter_by(user_id=session['user_id']).all()
     user_treks = [b.trek_id for b in bookings]
 
-
-
     if section == 'treks':
-        data=trek_model.query.filter_by(status='open').all()
+        data=trek_model.query.all()
    
     return render_template('user_dashboard.html',section=section,data=data,bookings=bookings,user_treks=user_treks)
 
@@ -323,6 +316,8 @@ def book_trek(id):
     t = trek_model.query.get(id)
     if not t:
         return 'Trek Not Found'
+    if t.status != 'open':
+        return "Booking not allowed for this trek"
     if t.slots <= 0:
         return "No slots available"
     
@@ -332,13 +327,80 @@ def book_trek(id):
     t.slots -= 1
     db.session.commit()
 
-    return redirect(url_for('user_dashboard', section='bookings'))
+    return redirect(url_for('user_dashboard', section='treks'))
 
 
 
 
 
 
+
+
+@app.route('/staff_dashboard',methods=['GET','POST'])
+def staff_dashboard():
+    if 'role' not in session or session['role']!='staff':
+        return redirect(url_for('staff_login'))
+
+    section = request.args.get('section','dashboard')
+    data=None
+
+    if section=='treks':
+        data=trek_model.query.filter_by(assigned_staff=session['user_id']).all()
+
+
+    return render_template('staff_dashboard.html',data=data,section=section,email=session.get('email'))
+
+
+
+
+
+@app.route('/update_slots_staff/<int:id>', methods=['POST'])
+def update_slots(id):
+    trek = trek_model.query.filter_by(
+        trek_id=id,
+        assigned_staff=session['user_id']
+    ).first()
+
+    if trek:
+        trek.slots = int(request.form['slots'])
+        db.session.commit()
+
+    return redirect(url_for('staff_dashboard', section='treks'))
+
+
+@app.route('/update_slots_admin/<int:id>', methods=['POST'])
+def update_slots_admin(id):
+    trek = trek_model.query.filter_by(
+        trek_id=id
+    ).first()
+
+    if trek:
+        trek.slots = int(request.form['slots'])
+        db.session.commit()
+
+    return redirect(url_for('admin_dashboard', section='treks'))
+
+
+@app.route('/update_status/<int:id>', methods=['POST'])
+def update_status(id):
+
+    trek = trek_model.query.filter_by(trek_id=id).first()
+
+    if session['role'] == 'staff':
+        if trek.assigned_staff != session['user_id']:
+            return "Unauthorized"
+
+    trek.status = request.form['status']
+    db.session.commit()
+
+    # 🔄 redirect based on role
+    if session['role'] == 'staff':
+        return redirect(url_for('staff_dashboard', section='treks'))
+
+    elif session['role'] == 'admin':
+        return redirect(url_for('admin_dashboard', section='treks'))
+
+    return "Unauthorized"
 
 
 

@@ -3,6 +3,89 @@
 {%block title%}Dashboard-Staff{%endblock%}
 {%block content%}
 
-<h2>Welcome {{email}}</h2>
+
+
+<h2>Welcome Staff</h2>
+
+<a href="{{ url_for('staff_dashboard', section='dashboard') }}">Dashboard</a>
+<a href="{{ url_for('staff_dashboard', section='treks') }}">My Treks</a>
+
+{% if section == 'dashboard' %}
+<p>Dashboard</p>
+
+
+
+{% elif section == 'treks' %}
+
+<h3>My Treks</h3>
+<div class="container">
+    <table>
+        <tr class="trek-header">
+            <th>Name</th>
+            <th>Location</th>
+            <th>Total users</th>
+            <th>Total Slots</th>
+            <th>Update Slots</th>
+            <th>Available Slots</th>
+            <th>Update Status</th>
+        </tr>
+
+        {% for t in data %}
+        <tr class="trek-row">
+            <td>{{ t.name }}</td>
+            <td>{{ t.location }}</td>
+            <td>{{ t.bookings | length }}</td>
+            <td>{{ t.slots }}</td>
+            <td>
+                <form method="post" action="{{ url_for('update_slots', id=t.trek_id) }}">
+                    <input type="number" name="slots" value="{{ t.slots }}">
+                    <button type="submit">Update Slots</button>
+                </form>
+            </td>
+            <td>{{ t.slots - (t.bookings | length) }}</td>
+            <td>
+                <form method="post" action="{{ url_for('update_status', id=t.trek_id) }}">
+                    <select name="status">
+                        <option>open</option>
+                        <option>closed</option>
+                        <option>ongoing</option>
+                        <option>completed</option>
+                    </select>
+                    <button type="submit">Update</button>
+                </form>
+            </td>
+
+        </tr>
+        <tr>
+            <td colspan="7">
+                <b>Participants:</b>
+                <ul>
+                    {% for b in t.bookings %}
+                    <li>{{ b.user.username }} ({{ b.user.email }})</li>
+                    {% else %}
+                    <li>No users yet</li>
+                    {% endfor %}
+                </ul>
+            </td>
+        </tr>
+
+        {% endfor %}
+    </table>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+{%endif%}
 
 {%endblock%}
