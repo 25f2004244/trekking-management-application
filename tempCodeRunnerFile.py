@@ -1,1 +1,1 @@
-l.query.all()
+

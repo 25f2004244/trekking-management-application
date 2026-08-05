@@ -19,13 +19,6 @@ class user(db.Model):
         return '<user (email=%s, username=%s)>' %(self.email,self.username)
 
 
-# class staff(db.Model):
-#     staff_id = db.Column(db.Integer,primary_key=True,autoincrement=True)
-#     staff_name = db.Column(db.String(50),nullable=False)
-
-#     treks = db.relationship('trek', backref='staff')
-
-
 
 
 class trek(db.Model):
@@ -34,11 +27,12 @@ class trek(db.Model):
     difficulty = db.Column(db.String(20),nullable=False)
     duration = db.Column(db.Integer,nullable=False)
     slots = db.Column(db.Integer,nullable=False)
-    assigned_staff = db.Column(db.Integer,db.ForeignKey(user.user_id),nullable=False)
-    status = db.Column(db.String(20),nullable=False,default='open')
+    assigned_staff = db.Column(db.Integer,db.ForeignKey(user.user_id),nullable=True)
+    status = db.Column(db.String(20),default='open')
     location = db.Column(db.String(100),default='To be announced')
 
-    bookings = db.relationship('booking', backref='trek')
+    bookings = db.relationship('booking', backref='trek',cascade="all, delete")
+    staff = db.relationship('user', backref='treks_assigned')
 
 
 
@@ -47,6 +41,6 @@ class booking(db.Model):
     booking_id = db.Column(db.Integer,primary_key=True,autoincrement=True)
     user_id = db.Column(db.Integer,db.ForeignKey(user.user_id),nullable=False)
     trek_id = db.Column(db.Integer,db.ForeignKey(trek.trek_id),nullable=False)
-    booking_status = db.Column(db.String(20),nullable=False,default='confirmed')
+    booking_status = db.Column(db.String(20),default='pending')
     booking_date = db.Column(db.DateTime,default=datetime.now)
 

@@ -10,6 +10,7 @@
 <div class="row-align">
     <a href="{{ url_for('user_dashboard') }}">Dashboard</a>
     <a href="{{ url_for('user_dashboard', section='treks') }}">Treks</a>
+    <a href="{{url_for('user_dashboard',section='settings')}}">Settings</a>
     <a href="{{ url_for('logout') }}">Logout</a>
 </div>
 
@@ -87,7 +88,44 @@
 
 
 
+{% elif section == 'settings' %}
 
+<div style="max-width: 600px; margin: auto;">
+
+    <h2 style="text-align:center;">⚙️ Profile Settings</h2>
+
+    <div style="border:1px solid #ccc; padding:15px; margin-bottom:20px; border-radius:10px;">
+        <h3>👤 Account Info</h3>
+        <p><strong>Username:</strong> {{ user.username }}</p>
+        <p><strong>Email:</strong> {{ user.email }}</p>
+    </div>
+
+    <!-- Username -->
+    <form method="POST">
+        <h4>Change Username</h4>
+        <input type="text" name="username" value="{{ user.username }}" required>
+        <button name="update_username">Update Username</button>
+    </form>
+
+    <hr>
+
+    <!-- Email -->
+    <form method="POST">
+        <h4>Change Email</h4>
+        <input type="email" name="email" value="{{ user.email }}" required>
+        <button name="update_email">Update Email</button>
+    </form>
+
+    <hr>
+
+    <!-- Password -->
+    <form method="POST">
+        <h4>Change Password</h4>
+        <input type="password" name="password" placeholder="New Password" required>
+        <button name="update_password">Update Password</button>
+    </form>
+
+</div>
 
 
 

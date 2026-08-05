@@ -9,6 +9,9 @@
 
 <a href="{{ url_for('staff_dashboard', section='dashboard') }}">Dashboard</a>
 <a href="{{ url_for('staff_dashboard', section='treks') }}">My Treks</a>
+<a href="{{ url_for('staff_dashboard', section='settings') }}">Settings</a>
+
+
 
 {% if section == 'dashboard' %}
 <p>Dashboard</p>
@@ -19,6 +22,7 @@
 
 <h3>My Treks</h3>
 <div class="container">
+    {% for t in data %}
     <table>
         <tr class="trek-header">
             <th>Name</th>
@@ -30,26 +34,27 @@
             <th>Update Status</th>
         </tr>
 
-        {% for t in data %}
+
         <tr class="trek-row">
             <td>{{ t.name }}</td>
             <td>{{ t.location }}</td>
             <td>{{ t.bookings | length }}</td>
             <td>{{ t.slots }}</td>
             <td>
-                <form method="post" action="{{ url_for('update_slots', id=t.trek_id) }}">
-                    <input type="number" name="slots" value="{{ t.slots }}">
-                    <button type="submit">Update Slots</button>
-                </form>
+                <form method="post" action="{{ url_for('update_slots_staff', id=t.trek_id) }}">
             </td>
-            <td>{{ t.slots - (t.bookings | length) }}</td>
             <td>
+                {{ t.slots - (t.bookings | selectattr('booking_status','equalto','approved') | list | length) }}
+            </td>
+
+            <td>
+                <span>Update Status</span>
                 <form method="post" action="{{ url_for('update_status', id=t.trek_id) }}">
                     <select name="status">
-                        <option>open</option>
-                        <option>closed</option>
-                        <option>ongoing</option>
-                        <option>completed</option>
+                        <option value="open" {% if t.status=='open' %}selected{% endif %}>Open</option>
+                        <option value="closed" {% if t.status=='closed' %}selected{% endif %}>Closed</option>
+                        <option value="ongoing" {% if t.status=='ongoing' %}selected{% endif %}>Ongoing</option>
+                        <option value="completed" {% if t.status=='completed' %}selected{% endif %}>Completed</option>
                     </select>
                     <button type="submit">Update</button>
                 </form>
@@ -61,7 +66,17 @@
                 <b>Participants:</b>
                 <ul>
                     {% for b in t.bookings %}
-                    <li>{{ b.user.username }} ({{ b.user.email }})</li>
+                    <li>
+                        {{ b.user.username }} ({{ b.user.email }}) - {{ b.booking_status }}
+
+                        {% if b.booking_status == 'pending' %}
+                        <form method="post" action="{{ url_for('update_booking_status', id=b.booking_id) }}"
+                            style="display:inline;">
+                            <button name="status" value="approved">Approve</button>
+                            <button name="status" value="cancelled">Reject</button>
+                        </form>
+                        {% endif %}
+                    </li>
                     {% else %}
                     <li>No users yet</li>
                     {% endfor %}
@@ -69,8 +84,7 @@
             </td>
         </tr>
 
-        {% endfor %}
-    </table>
+    </table>{%endfor%}
 </div>
 
 
@@ -78,8 +92,49 @@
 
 
 
+{% elif section == 'settings' %}
+
+<div style="max-width: 600px; margin: auto;">
+
+    <h2 style="text-align:center;">⚙️ Profile Settings</h2>
+
+    <div style="border:1px solid #ccc; padding:15px; margin-bottom:20px; border-radius:10px;">
+        <h3>👤 Account Info</h3>
+        <p><strong>Current Username:</strong> {{ user.username }}</p>
+        <p><strong>Current Email:</strong> {{ user.email }}</p>
+    </div>
+
+    <div style="border:1px solid #ddd; padding:15px; margin-bottom:15px; border-radius:10px;">
+        <h4>Change Username</h4>
+        <form method="POST">
+            <input type="text" name="username" value="{{ user.username }}" required
+                style="width:100%; padding:8px; margin-bottom:10px;">
+            <button name="update_username">Update Username</button>
+        </form>
+    </div>
 
 
+    <div style="border:1px solid #ddd; padding:15px; margin-bottom:15px; border-radius:10px;">
+        <h4>Change Email</h4>
+        <form method="POST">
+            <input type="email" name="email" value="{{ user.email }}" required
+                style="width:100%; padding:8px; margin-bottom:10px;">
+            <button name="update_email">Update Email</button>
+        </form>
+    </div>
+
+
+
+    <div style="border:1px solid #ddd; padding:15px; margin-bottom:15px; border-radius:10px;">
+        <h4>Change Password</h4>
+        <form method="POST">
+            <input type="password" name="password" placeholder="New Password" required
+                style="width:100%; padding:8px; margin-bottom:10px;">
+            <button name="update_password">Update Password</button>
+        </form>
+    </div>
+
+</div>
 
 
 
