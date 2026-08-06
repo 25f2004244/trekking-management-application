@@ -7,366 +7,370 @@
 {%block content%}
 
 
-<div class="row-align">
-    <a href="{{ url_for('admin_dashboard') }}">Dashboard</a>
-    <a href="{{ url_for('admin_dashboard', section='treks') }}">Manage Treks</a>
-    <a href="{{ url_for('admin_dashboard', section='staff') }}">Manage Staff</a>
-    <a href="{{ url_for('admin_dashboard', section='users') }}">Manage Users</a>
-    <a href="{{ url_for('admin_dashboard', section='bookings') }}">Bookings</a>
-    <a href="{{ url_for('logout') }}">Logout</a>
+<div class="navbar">
+    <a class="nav-btn" href="{{ url_for('admin_dashboard') }}">Dashboard</a>
+    <a class="nav-btn" href="{{ url_for('admin_dashboard', section='treks') }}">Manage Treks</a>
+    <a class="nav-btn" href="{{ url_for('admin_dashboard', section='staff') }}">Manage Staff</a>
+    <a class="nav-btn" href="{{ url_for('admin_dashboard', section='users') }}">Manage Users</a>
+    <a class="nav-btn" href="{{ url_for('admin_dashboard', section='bookings') }}">Bookings</a>
+    <a class="logout" href="{{ url_for('logout') }}">Logout</a>
 </div>
 
 
-<h1 style="display: block; text-align: center;">Welcome Admin!</h1>
 
 
 
-<div class="container">
-    <!-- DASHBOARD -->
-    {% if section == 'dashboard' %}
-    <h2>Dashboard</h2>
+
+
+<!-- DASHBOARD -->
+{% if section == 'dashboard' %}
+
+
+<h1 style="display: block; text-align: center; font-family: sans-serif;">Welcome Admin!</h1>
+<h2 style="font-family: sans-serif;">Dashboard</h2>
+<div class="dashboard-cards">
+    <div class="card">
+        <h3>Total Users</h3>
+        <p>{{ total_users }}</p>
+    </div>
+
+    <div class="card">
+        <h3>Staffs</h3>
+        <p>{{ total_staff }}</p>
+    </div>
+
+    <div class="card">
+        <h3>Total Treks</h3>
+        <p>{{ total_treks }}</p>
+    </div>
+
+    <div class="card">
+        <h3>Total Bookings</h3>
+        <p>{{ total_bookings }}</p>
+    </div>
+</div>
+
+
+
+<!-- MANAGE TREKS -->
+{% elif section == 'treks' %}
+
+<div class="open-container">
+    <h2 style="font-family: sans-serif;">Existing Treks</h2>
     <table>
-        <tr class="trek-row">
-            <td>Users: {{ total_users }}</td>
+        <tr class="trek-header">
+            <th>Name</th>
+            <th>Location</th>
+            <th>Total Users</th>
+            <th>Total Slots</th>
+            <th>Update Slots</th>
+            <th>Available Slots</th>
+            <th>Assigned Staff</th>
+            <th>Status</th>
+            <th>Action</th>
         </tr>
+
+        {% for t in data %}
         <tr class="trek-row">
-            <td>Staff: {{ total_staff }}</td>
+
+            <td>{{ t.name }}</td>
+
+            <td>{{ t.location }}</td>
+
+            <td>
+                {{ t.bookings| selectattr('booking_status','equalto','approved')|list| length}}
+            </td>
+
+            <!-- TOTAL SLOTS -->
+            <td>{{ t.slots }}</td>
+
+            <!-- UPDATE SLOTS -->
+            <td>
+                <form method="POST" action="/update_slots_admin/{{ t.trek_id }}">
+                    <input type="number" name="slots" value="{{ t.slots }}" min="1">
+                    <button class="button btn-update" type="submit">Update</button>
+                </form>
+            </td>
+
+            <!-- AVAILABLE SLOTS -->
+            <td>
+                {{ t.slots - (t.bookings | selectattr('booking_status','equalto','approved') | list | length) }}
+            </td>
+
+            <!-- STAFF -->
+            <td>
+                {% if t.staff %}
+                {{ t.staff.username }} ({{ t.staff.email }})
+                {% else %}
+                <form action="/assign_staff/{{ t.trek_id }}" method="POST">
+                    <select name="staff_id" required>
+                        <option value="">-- Select Staff --</option>
+                        {% for s in approved_staff %}
+                        <option value="{{ s.user_id }}">{{ s.username }}</option>
+                        {% endfor %}
+                    </select>
+                    <button class="button btn-approve" type="submit">Assign</button>
+                </form>
+                {% endif %}
+            </td>
+            <td>
+                <form method="POST" action="/update_status/{{ t.trek_id }}">
+                    <select name="status">
+                        <option value="open" {% if t.status=='open' %}selected{% endif %}>Open</option>
+                        <option value="closed" {% if t.status=='closed' %}selected{% endif %}>Closed</option>
+                        <option value="ongoing" {% if t.status=='ongoing' %}selected{% endif %}>Ongoing</option>
+                        <option value="completed" {% if t.status=='completed' %}selected{% endif %}>Completed
+                        </option>
+                    </select>
+                    <button type="submit" class="button btn-update">Update</button>
+                </form>
+            </td>
+            <td>
+                <form method="POST" action="/delete_trek/{{ t.trek_id }}"
+                    onsubmit="return confirm('Are you sure you want to delete this trek?');">
+                    <button type="submit" class="button btn-danger">
+                        Delete
+                    </button>
+                </form>
+            </td>
+
         </tr>
-        <tr class="trek-row">
-            <td>Treks: {{ total_treks }}</td>
-        </tr>
-        <tr class="trek-row">
-            <td>Bookings: {{ total_bookings }}</td>
-        </tr>
+        {% endfor %}
+
+
     </table>
+</div>
+
+
+<div class="open-container">
+    <h2 style="font-family: sans-serif;">Add Trek</h2>
+    <table style="width: 97%;">
+        <form method="POST" action="/add_trek">
+            <tr class="input-form trek-header-7" style="width: 97%;">
+                <td>
+                    <label for="name">Trek Name</label>
+                    <input name="name" placeholder="Name">
+                </td>
+                <td><label>Location:</label>
+                    <input type="text" name="location" required placeholder="Enter location">
+                </td>
+                <td>
+                    <span>Difficulty</span>
+                    <select name="difficulty" id="difficulty">
+                        <option value="easy">Easy</option>
+                        <option value="medium">Medium</option>
+                        <option value="hard">Hard</option>
+                        <option value="extreme">Extreme</option>
+                    </select>
+                </td>
+                <td>
+                    <label for="duration">Duration (days)</label>
+                    <select name="duration" id="duration">
+                        {%for i in range(1,31)%}
+                        <option value="{{i}}">{{i}}</option>
+                        {%endfor%}
+                    </select>
+                </td>
+                <td><label for="slots">Slots</label>
+                    <select name="slots" id="slots">
+                        {%for i in range(1,31)%}
+                        <option value="{{i}}">{{i}}</option>
+                        {%endfor%}
+                    </select>
+                </td>
+                <td>
+                    <label>Select Staff</label>
+                    <select name="staff_id">
+                        <option value="">--Select Staff--</option>
+                        {% for s in approved_staff %}
+                        <option value="{{ s.user_id }}">
+                            {{ s.username }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </td>
+                <td>
+                    <button class="button btn-update" type="submit">Add Trek</button>
+                </td>
+            </tr>
+        </form>
+    </table>
+</div>
+
+
+
+<!--  MANAGE STAFF  -->
+{%elif section == 'staff'%}
+
+<div class="open-container">
+    <h2 style="font-family: sans-serif;">Existing Staff</h2>
+    <table style="width: 97%;">
+        <tr class="trek-header-3">
+            <th>Username</th>
+            <th>Email</th>
+            <th>Action</th>
+        </tr>
+        {%for s in approved_staff%}
+        <tr class="trek-row-3">
+            <td>{{s.username}}</td>
+            <td>{{s.email}}</td>
+            <td>
+                <button class="button btn-danger"><a href="/blacklist/{{ s.user_id }}">Block</a></button>
+                <button class="button btn-update"><a href="/remove_staff/{{s.user_id}}">Remove</a></button>
+            </td>
+        </tr>
+        {%endfor%}
+    </table>
+</div>
+
+
+
+<div class="open-container">
+    <h2 style="font-family: sans-serif;">Staff Requests</h2>
+    <table style="width: 97%;">
+        <tr class="trek-header-3">
+            <th>Username</th>
+            <th>Email</th>
+            <th>Action</th>
+        </tr>
+        {%for s in not_approved_staff%}
+        <tr class="trek-row-3">
+            <td>{{s.username}}</td>
+            <td>{{s.email}}</td>
+            <td>
+                <button class="button btn-approve"><a href="/approve_staff/{{s.user_id}}">Approve</a></button>
+                <button class="button btn-danger"><a href="/blacklist/{{ s.user_id }}">Block</a></button>
+            </td>
+        </tr>
+        {%endfor%}
+    </table>
+</div>
 
 
 
 
-    <!-- MANAGE TREKS -->
-    {% elif section == 'treks' %}
+<div class="open-container">
+    <h2 style="font-family: sans-serif;">Blacklisted Staff</h2>
+    <table style="width: 97%;">
+        <tr class="trek-header-3">
+            <th>Username</th>
+            <th>Email</th>
+            <th>Action</th>
+        </tr>
+        {%for s in blacklisted_staff%}
+        <tr class="trek-row-3">
+            <td>{{s.username}}</td>
+            <td>{{s.email}}</td>
+            <td>
+                <button class="button btn-approve"><a href="/remove_staff_blacklist/{{s.user_id}}">Unblock</a></button>
+            </td>
+        </tr>
+        {%endfor%}
+    </table>
+</div>
 
-    <h1 style="display: block; text-align: center;">Treks</h1>
 
-    <h3>Existing Treks</h3>
-    <div class="container">
-        <table>
-            <tr class="trek-header">
-                <th>Name</th>
-                <th>Location</th>
-                <th>Total Users</th>
-                <th>Total Slots</th>
-                <th>Update Slots</th>
-                <th>Available Slots</th>
-                <th>Assigned Staff</th>
+
+
+
+{%elif section=='users'%}
+
+
+<div class="open-container">
+    <h2 style="font-family: sans-serif;">All Users</h2>
+    <table style="width: 97%;">
+        <tr class="trek-header-3">
+            <th>Username</th>
+            <th>Email</th>
+            <th>Action</th>
+        </tr>
+        {%for u in data%}
+        <tr class="trek-row-3">
+            <td>{{u.username}}</td>
+            <td>{{u.email}}</td>
+            <td><button class="button btn-danger"><a href="/blacklist/{{u.user_id}}">Block</a></button></td>
+        </tr>
+        {%endfor%}
+    </table>
+</div>
+
+
+<div class="open-container">
+    <h2 style="font-family: sans-serif;">Blacklisted Users</h2>
+    <table style="width: 97%;">
+        <tr class="trek-header-3">
+            <th>Username</th>
+            <th>Email</th>
+            <th>Action</th>
+        </tr>
+        {%for u in blacklisted_users%}
+        <tr class="trek-row-3">
+            <td>{{u.username}}</td>
+            <td>{{u.email}}</td>
+            <td><button class="button btn-approve"><a href="/remove_user_blacklist/{{u.user_id}}">Unblock</a></button>
+            </td>
+        </tr>
+        {%endfor%}
+    </table>
+</div>
+
+
+
+
+
+
+
+
+{% elif section == 'bookings' %}
+
+<div>
+    <h2 style="font-family: sans-serif;">Bookings</h2>
+    {% for t in data %}
+    <div class="open-container">
+
+        <h3>{{ t.name |upper}} : ({{ t.location |capitalize}})</h3>
+
+        <table style="width: 97%;">
+            <tr class="trek-header-5">
+                <th>User</th>
+                <th>Email</th>
                 <th>Status</th>
+                <th>Date</th>
                 <th>Action</th>
             </tr>
 
-            {% for t in data %}
-            <tr class="trek-row">
+            {% for b in t.bookings|sort(attribute='id', reverse=True) %}
+            <tr class="trek-row-5">
 
-                <td>{{ t.name }}</td>
-
-                <td>{{ t.location }}</td>
+                <td>{{ b.user.username }}</td>
+                <td>{{ b.user.email }}</td>
+                <td>{{ b.booking_status }}</td>
+                <td>{{ b.booking_date }}</td>
 
                 <td>
-                    {{ t.bookings| selectattr('booking_status','equalto','approved')|list| length}}
-                </td>
-
-                <!-- TOTAL SLOTS -->
-                <td>{{ t.slots }}</td>
-
-                <!-- UPDATE SLOTS -->
-                <td>
-                    <form method="POST" action="/update_slots_admin/{{ t.trek_id }}">
-                        <input type="number" name="slots" value="{{ t.slots }}" min="1">
-                        <button type="submit">Update</button>
+                    {% if b.booking_status == 'pending' %}
+                    <form method="post" action="{{ url_for('update_booking_status', id=b.booking_id) }}">
+                        <button class="button btn-approve" name="status" value="approved">Approve</button>
+                        <button class="button btn-danger" name="status" value="cancelled">Decline</button>
                     </form>
-                </td>
-
-                <!-- AVAILABLE SLOTS -->
-                <td>
-                    {{ t.slots - (t.bookings | selectattr('booking_status','equalto','approved') | list | length) }}
-                </td>
-
-                <!-- STAFF -->
-                <td>
-                    {% if t.staff %}
-                    {{ t.staff.username }} ({{ t.staff.email }})
                     {% else %}
-                    <form action="/assign_staff/{{ t.trek_id }}" method="POST">
-                        <select name="staff_id" required>
-                            <option value="">-- Select Staff --</option>
-                            {% for s in approved_staff %}
-                            <option value="{{ s.user_id }}">{{ s.username }}</option>
-                            {% endfor %}
-                        </select>
-                        <button type="submit">Assign</button>
-                    </form>
+                    -
                     {% endif %}
                 </td>
 
-                <!-- STATUS DROPDOWN -->
-                <td>
-                    <form method="POST" action="/update_status/{{ t.trek_id }}">
-                        <select name="status">
-                            <option value="open" {% if t.status=='open' %}selected{% endif %}>Open</option>
-                            <option value="closed" {% if t.status=='closed' %}selected{% endif %}>Closed</option>
-                            <option value="ongoing" {% if t.status=='ongoing' %}selected{% endif %}>Ongoing</option>
-                            <option value="completed" {% if t.status=='completed' %}selected{% endif %}>Completed
-                            </option>
-                        </select>
-                        <button type="submit">Update</button>
-                    </form>
-                </td>
-                <td>
-                    <form method="POST" action="/delete_trek/{{ t.trek_id }}"
-                        onsubmit="return confirm('Are you sure you want to delete this trek?');">
-                        <button type="submit" style="background-color:red; color:white;">
-                            Delete
-                        </button>
-                    </form>
-                </td>
-
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="5">No bookings</td>
             </tr>
             {% endfor %}
 
-
         </table>
-    </div>
-
-
-
-    <h3>Add Trek</h3>
-    <div class="container">
-        <table>
-            <form method="POST" action="/add_trek">
-                <tr class="trek-header">
-                    <td>
-                        <label for="name">Trek Name</label>
-                        <input name="name" placeholder="Name">
-                    </td>
-                    <td><label>Location:</label>
-                        <input type="text" name="location" required placeholder="Enter location">
-                    </td>
-                    <td>
-                        <span>Difficulty</span>
-                        <select name="difficulty" id="difficulty">
-                            <option value="easy">Easy</option>
-                            <option value="medium">Medium</option>
-                            <option value="hard">Hard</option>
-                            <option value="extreme">Extreme</option>
-                        </select>
-                    </td>
-                    <td>
-                        <label for="duration">Duration (days)</label>
-                        <select name="duration" id="duration">
-                            {%for i in range(1,31)%}
-                            <option value="{{i}}">{{i}}</option>
-                            {%endfor%}
-                        </select>
-                    </td>
-                    <td><label for="slots">Slots</label>
-                        <select name="slots" id="slots">
-                            {%for i in range(1,31)%}
-                            <option value="{{i}}">{{i}}</option>
-                            {%endfor%}
-                        </select>
-                    </td>
-                    <td>
-                        <label>Select Staff</label>
-                        <select name="staff_id">
-                            <option value="">--Select Staff--</option>
-                            {% for s in approved_staff %}
-                            <option value="{{ s.user_id }}">
-                                {{ s.username }}
-                            </option>
-                            {% endfor %}
-                        </select>
-                    </td>
-                    <td>
-                        <button type="submit">Add Trek</button>
-                    </td>
-                </tr>
-            </form>
-        </table>
-    </div>
-
-
-
-    <!--  MANAGE STAFF  -->
-    {%elif section == 'staff'%}
-    <h1>Manage Staff</h1>
-
-    <h2>Existing Staff</h2>
-
-    <div class="container">
-        <table>
-            <tr class="trek-header">
-                <th>Username</th>
-                <th>Email</th>
-                <th>Action</th>
-            </tr>
-            {%for s in approved_staff%}
-            <tr class="trek-row">
-                <td>{{s.username}}</td>
-                <td>{{s.email}}</td>
-                <td>
-                    <a href="/blacklist/{{ s.user_id }}">Blacklist</a>
-                    <a href="/remove_staff/{{s.user_id}}">Remove Staff</a>
-                </td>
-            </tr>
-            {%endfor%}
-        </table>
-    </div>
-    <br>
-
-
-    <h2>Staff Requests</h2>
-    <div class="container">
-        <table>
-            <tr class="trek-header">
-                <th>Username</th>
-                <th>Email</th>
-                <th>Action</th>
-            </tr>
-            {%for s in not_approved_staff%}
-            <tr class="trek-row">
-                <td>{{s.username}}</td>
-                <td>{{s.email}}</td>
-                <td>
-                    <a href="/approve_staff/{{s.user_id}}">Approve</a> |
-                    <!-- <a href="/reject_staff/{{ s.user_id }}">Reject</a> | -->
-                    <a href="/blacklist/{{ s.user_id }}">Add to Blacklist</a>
-                </td>
-            </tr>
-            {%endfor%}
-        </table>
-    </div>
-
-
-
-    <div class="container">
-        <h2>Blacklist</h2>
-        <table>
-            <tr class="trek-header">
-                <th>Username</th>
-                <th>Email</th>
-                <th>Action</th>
-            </tr>
-            {%for s in blacklisted_staff%}
-            <tr class="trek-row">
-                <td>{{s.username}}</td>
-                <td>{{s.email}}</td>
-                <td>
-                    <a href="/remove_staff_blacklist/{{s.user_id}}">Remove from blacklist</a>
-                </td>
-            </tr>
-            {%endfor%}
-        </table>
-    </div>
-
-
-
-
-
-    {%elif section=='users'%}
-    <h1 style="display: block; text-align: center;">Users</h1>
-
-    <h3>All Users</h3>
-    <div class="container">
-        <table>
-            <tr class="trek-header">
-                <th>Username</th>
-                <th>Email</th>
-                <th>Action</th>
-            </tr>
-            {%for u in data%}
-            <tr class="trek-row">
-                <td>{{u.username}}</td>
-                <td>{{u.email}}</td>
-                <td><a href="/blacklist/{{u.user_id}}">Add to Blacklist</a></td>
-            </tr>
-            {%endfor%}
-        </table>
-    </div>
-
-    <h3>Blacklisted Users</h3>
-    <div class="container">
-        <table>
-            <tr class="trek-header">
-                <th>Username</th>
-                <th>Email</th>
-                <th>Action</th>
-            </tr>
-            {%for u in blacklisted_users%}
-            <tr class="trek-row">
-                <td>{{u.username}}</td>
-                <td>{{u.email}}</td>
-                <td><a href="/remove_user_blacklist/{{u.user_id}}">Remove from Blacklist</a></td>
-            </tr>
-            {%endfor%}
-        </table>
-    </div>
-
-
-
-
-
-
-
-
-    {% elif section == 'bookings' %}
-    <div class="container">
-        <h2>All Bookings</h2>
-
-        {% for t in data %}
-        <div class="trek-box" style="border:1px solid #ccc; padding:15px; margin-bottom:20px;">
-
-            <h3>{{ t.name }} ({{ t.location }})</h3>
-
-            <table>
-                <tr class="trek-header">
-                    <th>User</th>
-                    <th>Email</th>
-                    <th>Status</th>
-                    <th>Date</th>
-                    <th>Action</th>
-                </tr>
-
-                {% for b in t.bookings|sort(attribute='id', reverse=True) %}
-                <tr class="trek-row">
-
-                    <td>{{ b.user.username }}</td>
-                    <td>{{ b.user.email }}</td>
-                    <td>{{ b.booking_status }}</td>
-                    <td>{{ b.booking_date }}</td>
-
-                    <td>
-                        {% if b.booking_status == 'pending' %}
-                        <form method="post" action="{{ url_for('update_booking_status', id=b.booking_id) }}">
-                            <button name="status" value="approved">Approve</button>
-                            <button name="status" value="cancelled">Reject</button>
-                        </form>
-                        {% else %}
-                        -
-                        {% endif %}
-                    </td>
-
-                </tr>
-                {% else %}
-                <tr>
-                    <td colspan="5">No bookings</td>
-                </tr>
-                {% endfor %}
-
-            </table>
-
-        </div>
-        {% endfor %}
 
     </div>
+    {% endfor %}
+
+
 
 
 

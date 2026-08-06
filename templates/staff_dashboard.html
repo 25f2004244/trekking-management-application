@@ -5,26 +5,51 @@
 
 
 
-<h2>Welcome Staff</h2>
 
-<a href="{{ url_for('staff_dashboard', section='dashboard') }}">Dashboard</a>
-<a href="{{ url_for('staff_dashboard', section='treks') }}">My Treks</a>
-<a href="{{ url_for('staff_dashboard', section='settings') }}">Settings</a>
+<div class="navbar">
+    <a class="nav-btn" href="{{ url_for('staff_dashboard', section='dashboard') }}">Dashboard</a>
+    <a class="nav-btn" href="{{ url_for('staff_dashboard', section='treks') }}">Treks</a>
+    <a class="nav-btn" href="{{ url_for('staff_dashboard', section='settings') }}">Settings</a>
+    <a class="logout" href="{{ url_for('logout') }}">Logout</a>
+</div>
+
+
 
 
 
 {% if section == 'dashboard' %}
-<p>Dashboard</p>
+<h1 style="display: block; text-align: center;">Welcome Staff</h1>
+<h2 style="font-family: sans-serif;">Dashboard</h2>
+<h2>Your Treks</h2>
+<div class="open-container">
+    <table style="width: 97%;">
+        <tr class="trek-header-5">
+            <th>Trek Name</th>
+            <th>Location</th>
+            <th>Duration</th>
+            <th>Status</th>
+        </tr>
+        {%for d in data%}
+        <tr class="trek-row-5">
+            <td>{{d.name}}</td>
+            <td>{{d.location}}</td>
+            <td>{{d.duration}}</td>
+            <td>{{d.status}}</td>
+        </tr>{%endfor%}
+    </table>
+
+
+</div>
+
 
 
 
 {% elif section == 'treks' %}
-
-<h3>My Treks</h3>
-<div class="container">
+<h2 style="font-family: sans-serif;">Treks</h2>
+<div>
     {% for t in data %}
-    <table>
-        <tr class="trek-header">
+    <table class="open-container">
+        <tr class="trek-header-7">
             <th>Name</th>
             <th>Location</th>
             <th>Total users</th>
@@ -35,13 +60,16 @@
         </tr>
 
 
-        <tr class="trek-row">
+        <tr class="trek-row-7">
             <td>{{ t.name }}</td>
             <td>{{ t.location }}</td>
             <td>{{ t.bookings | length }}</td>
             <td>{{ t.slots }}</td>
             <td>
-                <form method="post" action="{{ url_for('update_slots_staff', id=t.trek_id) }}">
+                <form method="POST" action="/update_slots_staff/{{ t.trek_id }}">
+                    <input type="number" name="slots" value="{{ t.slots }}" min="1">
+                    <button class="button btn-update" type="submit">Update</button>
+                </form>
             </td>
             <td>
                 {{ t.slots - (t.bookings | selectattr('booking_status','equalto','approved') | list | length) }}
@@ -56,7 +84,7 @@
                         <option value="ongoing" {% if t.status=='ongoing' %}selected{% endif %}>Ongoing</option>
                         <option value="completed" {% if t.status=='completed' %}selected{% endif %}>Completed</option>
                     </select>
-                    <button type="submit">Update</button>
+                    <button class="button btn-update" type="submit">Update</button>
                 </form>
             </td>
 
@@ -72,8 +100,8 @@
                         {% if b.booking_status == 'pending' %}
                         <form method="post" action="{{ url_for('update_booking_status', id=b.booking_id) }}"
                             style="display:inline;">
-                            <button name="status" value="approved">Approve</button>
-                            <button name="status" value="cancelled">Reject</button>
+                            <button class="button btn-approve" name="status" value="approved">Approve</button>
+                            <button class="button btn-danger" name="status" value="cancelled">Decline</button>
                         </form>
                         {% endif %}
                     </li>
@@ -96,41 +124,41 @@
 
 <div style="max-width: 600px; margin: auto;">
 
-    <h2 style="text-align:center;">⚙️ Profile Settings</h2>
+    <h2 class="center">Profile Settings</h2>
 
-    <div style="border:1px solid #ccc; padding:15px; margin-bottom:20px; border-radius:10px;">
-        <h3>👤 Account Info</h3>
+    <div class="container">
+        <h2>Account Info</h2>
         <p><strong>Current Username:</strong> {{ user.username }}</p>
         <p><strong>Current Email:</strong> {{ user.email }}</p>
     </div>
 
-    <div style="border:1px solid #ddd; padding:15px; margin-bottom:15px; border-radius:10px;">
+    <div>
         <h4>Change Username</h4>
         <form method="POST">
             <input type="text" name="username" value="{{ user.username }}" required
                 style="width:100%; padding:8px; margin-bottom:10px;">
-            <button name="update_username">Update Username</button>
+            <button class="button btn-approve" name="update_username">Update Username</button>
         </form>
     </div>
 
 
-    <div style="border:1px solid #ddd; padding:15px; margin-bottom:15px; border-radius:10px;">
+    <div>
         <h4>Change Email</h4>
         <form method="POST">
             <input type="email" name="email" value="{{ user.email }}" required
                 style="width:100%; padding:8px; margin-bottom:10px;">
-            <button name="update_email">Update Email</button>
+            <button class="button btn-approve" name="update_email">Update Email</button>
         </form>
     </div>
 
 
 
-    <div style="border:1px solid #ddd; padding:15px; margin-bottom:15px; border-radius:10px;">
+    <div>
         <h4>Change Password</h4>
         <form method="POST">
             <input type="password" name="password" placeholder="New Password" required
                 style="width:100%; padding:8px; margin-bottom:10px;">
-            <button name="update_password">Update Password</button>
+            <button class="button btn-approve" name="update_password">Update Password</button>
         </form>
     </div>
 

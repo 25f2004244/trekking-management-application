@@ -7,95 +7,94 @@
 {%block content%}
 
 
-<div class="row-align">
-    <a href="{{ url_for('user_dashboard') }}">Dashboard</a>
-    <a href="{{ url_for('user_dashboard', section='treks') }}">Treks</a>
-    <a href="{{url_for('user_dashboard',section='settings')}}">Settings</a>
-    <a href="{{ url_for('logout') }}">Logout</a>
+<div class="navbar">
+    <a class="nav-btn" href="{{ url_for('user_dashboard') }}">Dashboard</a>
+    <a class="nav-btn" href="{{ url_for('user_dashboard', section='treks') }}">Treks</a>
+    <a class="nav-btn" href="{{url_for('user_dashboard',section='settings')}}">Settings</a>
+    <a class="logout" href="{{ url_for('logout') }}">Logout</a>
 </div>
 
 
-<h1 style="display: block; text-align: center;">Welcome User</h1>
+
 
 
 {% if section == 'dashboard' %}
-<div class="container">
+<h1 style="display: block; text-align: center;">Welcome User</h1>
 
-    <h2>Dashboard</h2>
-    <div class="container">
-        <h3>Your Bookings</h3>
-        <table>
-            <tr class="trek-header">
-                <th>Trek Name</th>
-                <th>Status</th>
-            </tr>
+<h2 style="font-family: sans-serif;">Dashboard</h2>
+<h2>Your Bookings</h2>
 
-            {% for b in bookings %}
-            <tr class="trek-row">
-                <td>{{ b.trek.name }}</td>
-                <td>{{ b.booking_status }}</td>
-            </tr>
-            {% endfor %}
-        </table>
-    </div>
+<div class="open-container">
 
 
+    <table style="width: 97%;">
+        <tr class="trek-header-3">
+            <th>Trek Name</th>
+            <th>Status</th>
+        </tr>
+
+        {% for b in bookings %}
+        <tr class="trek-row-3">
+            <td>{{ b.trek.name }}</td>
+            <td>{{ b.booking_status }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
 
 
 
-    {% elif section == 'treks' %}
-    <div class="container">
 
-        <h2>Available Treks</h2>
 
-        <table>
-            <tr class="trek-header">
-                <th>Name</th>
-                <th>Difficulty</th>
-                <th>Duration</th>
-                <th>Slots</th>
-                <th>Status</th>
-                <th>Action</th>
-            </tr>
+{% elif section == 'treks' %}
+<h2 style="font-family: sans-serif;">Treks</h2>
+<div class="open-container">
+    <table style="width: 100%;">
+        <tr class="trek-header-7">
+            <th>Name</th>
+            <th>Difficulty</th>
+            <th>Duration</th>
+            <th>Slots</th>
+            <th>Status</th>
+            <th>Action</th>
+        </tr>
 
-            {% for t in data %}
-            <tr class="trek-row">
-                <td>{{ t.name }}</td>
-                <td>{{ t.difficulty }}</td>
-                <td>{{ t.duration }}</td>
-                <td>{{ t.slots }}</td>
-                <td>{{t.status}}</td>
-                <td>
-                    {% if t.trek_id in user_treks %}
+        {% for t in data %}
+        <tr class="trek-row-7">
+            <td>{{ t.name }}</td>
+            <td>{{ t.difficulty }}</td>
+            <td>{{ t.duration }}</td>
+            <td>{{ t.slots }}</td>
+            <td>{{t.status}}</td>
+            <td>
+                {% if t.trek_id in user_treks %}
 
-                    Already Booked
+                Already Booked
 
-                    {% elif t.status != 'open' %}
+                {% elif t.status != 'open' %}
 
-                    Not Available
+                Not Available
 
-                    {% elif t.slots <= 0 %} Slots Full {% else %} <form action="/book_trek/{{ t.trek_id }}"
-                        method="POST">
-                        <button type="submit">Book</button>
-                        </form>
+                {% elif t.slots <= 0 %} Slots Full {% else %} <form action="/book_trek/{{ t.trek_id }}" method="POST">
+                    <button class="button btn-approve" type="submit">Book</button>
+                    </form>
 
-                        {% endif %}
-                </td>
-            </tr>
-            {% endfor %}
-        </table>
-    </div>
+                    {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
 
 
 
 {% elif section == 'settings' %}
-
+<BR></BR>
+<h2 class="center">Profile Settings</h2>
 <div style="max-width: 600px; margin: auto;">
 
-    <h2 style="text-align:center;">⚙️ Profile Settings</h2>
-
-    <div style="border:1px solid #ccc; padding:15px; margin-bottom:20px; border-radius:10px;">
-        <h3>👤 Account Info</h3>
+    <div class="container">
+        <h2>Account Info</h2>
         <p><strong>Username:</strong> {{ user.username }}</p>
         <p><strong>Email:</strong> {{ user.email }}</p>
     </div>
@@ -103,8 +102,8 @@
     <!-- Username -->
     <form method="POST">
         <h4>Change Username</h4>
-        <input type="text" name="username" value="{{ user.username }}" required>
-        <button name="update_username">Update Username</button>
+        <input type="text" name="username" value="{{ user.username }}" required placeholder="New Username">
+        <button class="button btn-approve" name="update_username">Update Username</button>
     </form>
 
     <hr>
@@ -112,8 +111,8 @@
     <!-- Email -->
     <form method="POST">
         <h4>Change Email</h4>
-        <input type="email" name="email" value="{{ user.email }}" required>
-        <button name="update_email">Update Email</button>
+        <input type="email" name="email" value="{{ user.email }}" required placeholder="New Email">
+        <button class="button btn-approve" name="update_email">Update Email</button>
     </form>
 
     <hr>
@@ -122,7 +121,7 @@
     <form method="POST">
         <h4>Change Password</h4>
         <input type="password" name="password" placeholder="New Password" required>
-        <button name="update_password">Update Password</button>
+        <button class="button btn-approve" name="update_password">Update Password</button>
     </form>
 
 </div>
@@ -147,7 +146,7 @@
 
 
 
-    {%endif%}
+{%endif%}
 
 
 
@@ -159,6 +158,6 @@
 
 
 
-</div>
+
 
 {%endblock%}
