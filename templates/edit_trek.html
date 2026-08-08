@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% block title %}Edit-Trek{% endblock %}
+
+{% block content %}
+
+<form method="POST">
+
+    <label>Name:</label>
+    <input type="text" name="name" value="{{ trek.name }}" required>
+
+    <label>Location:</label>
+    <input type="text" name="location" value="{{ trek.location }}" required>
+
+    <label>Total Slots:</label>
+    <input type="number" name="slots" value="{{ trek.slots }}" min="1">
+
+    <label>Status:</label>
+    <select name="status">
+        <option value="Open" {% if trek.status == 'Open' %}selected{% endif %}>Open</option>
+        <option value="Ongoing" {% if trek.status == 'Ongoing' %}selected{% endif %}>Ongoing</option>
+        <option value="Closed" {% if trek.status == 'Closed' %}selected{% endif %}>Closed</option>
+        <option value="Completed" {% if trek.status == 'Completed' %}selected{% endif %}>Completed</option>
+    </select>
+
+    <label>Assign Staff:</label>
+    <select name="staff_id">
+        <option value="">Select Staff</option>
+        {% for s in staff %}
+        <option value="{{ s.user_id }}"
+            {% if trek.staff and trek.staff.user_id == s.user_id %}selected{% endif %}>
+            {{ s.username }}
+        </option>
+        {% endfor %}
+    </select>
+
+    <br><br>
+    <button class="button btn-update" type="submit">Save Changes</button>
+
+</form>
+
+{% endblock %}

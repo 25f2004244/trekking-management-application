@@ -55,6 +55,24 @@
 <!-- MANAGE TREKS -->
 {% elif section == 'treks' %}
 
+
+
+<div class="search-bar-container">
+        <form method="GET" action="{{ url_for('admin_dashboard') }}">
+            <!-- This hidden input makes sure you stay on the 'treks' page after searching -->
+            <input type="hidden" name="section" value="treks">
+            
+            <input type="text" name="search" placeholder="Search Treks" value="{{ search_query or '' }}">
+            <button type="submit" class="button btn-update">Search</button>
+            
+            {% if search_query %}
+                <a href="{{ url_for('admin_dashboard', section='treks') }}" class="button btn-clear">Clear Filter</a>
+            {% endif %}
+        </form>
+    </div>
+
+
+
 <div class="open-container">
     <h2 style="font-family: sans-serif;">Existing Treks</h2>
     <table>
@@ -63,83 +81,55 @@
             <th>Location</th>
             <th>Total Users</th>
             <th>Total Slots</th>
-            <th>Update Slots</th>
             <th>Available Slots</th>
             <th>Assigned Staff</th>
             <th>Status</th>
             <th>Action</th>
         </tr>
-
         {% for t in data %}
         <tr class="trek-row">
 
             <td>{{ t.name }}</td>
-
             <td>{{ t.location }}</td>
-
             <td>
                 {{ t.bookings| selectattr('booking_status','equalto','approved')|list| length}}
             </td>
-
-            <!-- TOTAL SLOTS -->
             <td>{{ t.slots }}</td>
-
-            <!-- UPDATE SLOTS -->
-            <td>
-                <form method="POST" action="/update_slots_admin/{{ t.trek_id }}">
-                    <input type="number" name="slots" value="{{ t.slots }}" min="1">
-                    <button class="button btn-update" type="submit">Update</button>
-                </form>
-            </td>
-
-            <!-- AVAILABLE SLOTS -->
             <td>
                 {{ t.slots - (t.bookings | selectattr('booking_status','equalto','approved') | list | length) }}
             </td>
-
-            <!-- STAFF -->
             <td>
                 {% if t.staff %}
                 {{ t.staff.username }} ({{ t.staff.email }})
-                {% else %}
-                <form action="/assign_staff/{{ t.trek_id }}" method="POST">
-                    <select name="staff_id" required>
-                        <option value="">-- Select Staff --</option>
-                        {% for s in approved_staff %}
-                        <option value="{{ s.user_id }}">{{ s.username }}</option>
-                        {% endfor %}
-                    </select>
-                    <button class="button btn-approve" type="submit">Assign</button>
-                </form>
+                {%else%}
+                Not Assigned
                 {% endif %}
             </td>
             <td>
-                <form method="POST" action="/update_status/{{ t.trek_id }}">
-                    <select name="status">
-                        <option value="open" {% if t.status=='open' %}selected{% endif %}>Open</option>
-                        <option value="closed" {% if t.status=='closed' %}selected{% endif %}>Closed</option>
-                        <option value="ongoing" {% if t.status=='ongoing' %}selected{% endif %}>Ongoing</option>
-                        <option value="completed" {% if t.status=='completed' %}selected{% endif %}>Completed
-                        </option>
-                    </select>
-                    <button type="submit" class="button btn-update">Update</button>
-                </form>
+                {% if t.status=='Open' %}Open
+                {% elif t.status=='Closed' %}Closed
+                {% elif t.status=='Ongoing' %}Ongoing
+                {% elif t.status=='Completed' %}Completed
+                {%endif%}
             </td>
             <td>
-                <form method="POST" action="/delete_trek/{{ t.trek_id }}"
+                <a href="{{ url_for('edit_trek', trek_id=t.trek_id) }}">
+                    <button class="button btn-update">Edit</button>
+                </a>
+                <form method="POST" action="{{ url_for('delete_trek', id=t.trek_id) }}"
                     onsubmit="return confirm('Are you sure you want to delete this trek?');">
                     <button type="submit" class="button btn-danger">
                         Delete
                     </button>
                 </form>
             </td>
-
         </tr>
         {% endfor %}
-
-
     </table>
 </div>
+
+
+
 
 
 <div class="open-container">
@@ -199,9 +189,22 @@
 
 
 
+
+
+
 <!--  MANAGE STAFF  -->
 {%elif section == 'staff'%}
 
+<div class="search-bar-container">
+    <form method="GET" action="{{ url_for('admin_dashboard') }}">
+        <input type="hidden" name="section" value="staff">
+        <input type="text" name="search" placeholder="Search Staff" value="{{ search_query or '' }}">
+        <button type="submit" class="button btn-update">Search</button>
+        {% if search_query %}
+            <a href="{{ url_for('admin_dashboard', section='staff') }}" class="button btn-clear">Clear Filter</a>
+        {% endif %}
+    </form>
+</div>
 <div class="open-container">
     <h2 style="font-family: sans-serif;">Existing Staff</h2>
     <table style="width: 97%;">
@@ -275,6 +278,16 @@
 
 {%elif section=='users'%}
 
+<div class="search-bar-container">
+    <form method="GET" action="{{ url_for('admin_dashboard') }}">
+        <input type="hidden" name="section" value="users">
+        <input type="text" name="search" placeholder="Search Users" value="{{ search_query or '' }}">
+        <button type="submit" class="button btn-update">Search</button>
+        {% if search_query %}
+            <a href="{{ url_for('admin_dashboard', section='users') }}" class="button btn-clear">Clear Filter</a>
+        {% endif %}
+    </form>
+</div>
 
 <div class="open-container">
     <h2 style="font-family: sans-serif;">All Users</h2>
@@ -328,7 +341,7 @@
     {% for t in data %}
     <div class="open-container">
 
-        <h3>{{ t.name |upper}} : ({{ t.location |capitalize}})</h3>
+        <h3>{{ t.name |upper}} : ({{ t.location |capitalize}}) | </h3>
 
         <table style="width: 97%;">
             <tr class="trek-header-5">
@@ -339,7 +352,7 @@
                 <th>Action</th>
             </tr>
 
-            {% for b in t.bookings|sort(attribute='id', reverse=True) %}
+            {% for b in t.bookings|sort(attribute='booking_id', reverse=True) %}
             <tr class="trek-row-5">
 
                 <td>{{ b.user.username }}</td>

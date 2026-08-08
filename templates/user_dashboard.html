@@ -45,48 +45,58 @@
 
 
 
-
 {% elif section == 'treks' %}
 <h2 style="font-family: sans-serif;">Treks</h2>
+
+<div class="search-bar-container">
+    <form method="GET" action="{{ url_for('user_dashboard') }}">
+        <input type="hidden" name="section" value="treks">
+        <input type="text" name="search" placeholder="Search Treks" value="{{ search_query or '' }}">
+        <button type="submit" class="button btn-update">Search</button>
+        {% if search_query %}
+        <a href="{{ url_for('user_dashboard', section='treks') }}" class="button btn-clear">Clear Filter</a>
+        {% endif %}
+    </form>
+</div>
+
 <div class="open-container">
     <table style="width: 100%;">
         <tr class="trek-header-7">
             <th>Name</th>
             <th>Difficulty</th>
             <th>Duration</th>
-            <th>Slots</th>
+            <th>Total Slots</th>
+            <th>Available Slots</th>
             <th>Status</th>
             <th>Action</th>
         </tr>
 
         {% for t in data %}
+        {% set available_slots = t.slots - (t.bookings | selectattr('booking_status','equalto','approved') | list | length) %}
         <tr class="trek-row-7">
             <td>{{ t.name }}</td>
             <td>{{ t.difficulty }}</td>
             <td>{{ t.duration }}</td>
             <td>{{ t.slots }}</td>
-            <td>{{t.status}}</td>
+            <td>{{ available_slots }}</td>
+            <td>{{ t.status }}</td>
             <td>
                 {% if t.trek_id in user_treks %}
-
                 Already Booked
-
-                {% elif t.status != 'open' %}
-
+                {% elif t.status != 'Open' %}
                 Not Available
-
-                {% elif t.slots <= 0 %} Slots Full {% else %} <form action="/book_trek/{{ t.trek_id }}" method="POST">
+                {% elif available_slots <= 0 %}
+                Slots Full
+                {% else %}
+                <form action="/book_trek/{{ t.trek_id }}" method="POST">
                     <button class="button btn-approve" type="submit">Book</button>
-                    </form>
-
-                    {% endif %}
+                </form>
+                {% endif %}
             </td>
         </tr>
         {% endfor %}
     </table>
 </div>
-
-
 
 {% elif section == 'settings' %}
 <BR></BR>

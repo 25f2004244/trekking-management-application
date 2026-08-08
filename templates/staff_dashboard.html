@@ -46,6 +46,18 @@
 
 {% elif section == 'treks' %}
 <h2 style="font-family: sans-serif;">Treks</h2>
+
+<div class="search-bar-container">
+    <form method="GET" action="{{ url_for('staff_dashboard') }}">
+        <input type="hidden" name="section" value="treks">
+        <input type="text" name="search" placeholder="Search Your Treks" value="{{ search_query or '' }}">
+        <button type="submit" class="button btn-update">Search</button>
+        {% if search_query %}
+            <a href="{{ url_for('staff_dashboard', section='treks') }}" class="button btn-clear">Clear Filter</a>
+        {% endif %}
+    </form>
+</div>
+
 <div>
     {% for t in data %}
     <table class="open-container">
@@ -79,10 +91,10 @@
                 <span>Update Status</span>
                 <form method="post" action="{{ url_for('update_status', id=t.trek_id) }}">
                     <select name="status">
-                        <option value="open" {% if t.status=='open' %}selected{% endif %}>Open</option>
-                        <option value="closed" {% if t.status=='closed' %}selected{% endif %}>Closed</option>
-                        <option value="ongoing" {% if t.status=='ongoing' %}selected{% endif %}>Ongoing</option>
-                        <option value="completed" {% if t.status=='completed' %}selected{% endif %}>Completed</option>
+                        <option value="open" {% if t.status=='Open' %}selected{% endif %}>Open</option>
+                        <option value="closed" {% if t.status=='Closed' %}selected{% endif %}>Closed</option>
+                        <option value="ongoing" {% if t.status=='Ongoing' %}selected{% endif %}>Ongoing</option>
+                        <option value="completed" {% if t.status=='Completed' %}selected{% endif %}>Completed</option>
                     </select>
                     <button class="button btn-update" type="submit">Update</button>
                 </form>

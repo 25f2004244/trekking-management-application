@@ -28,7 +28,7 @@ class trek(db.Model):
     duration = db.Column(db.Integer,nullable=False)
     slots = db.Column(db.Integer,nullable=False)
     assigned_staff = db.Column(db.Integer,db.ForeignKey(user.user_id),nullable=True)
-    status = db.Column(db.String(20),default='open')
+    status = db.Column(db.String(20),default='Open')
     location = db.Column(db.String(100),default='To be announced')
 
     bookings = db.relationship('booking', backref='trek',cascade="all, delete")
