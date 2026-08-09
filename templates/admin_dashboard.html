@@ -55,18 +55,15 @@
 <!-- MANAGE TREKS -->
 {% elif section == 'treks' %}
 
-
-
 <div class="search-bar-container">
         <form method="GET" action="{{ url_for('admin_dashboard') }}">
-            <!-- This hidden input makes sure you stay on the 'treks' page after searching -->
             <input type="hidden" name="section" value="treks">
             
             <input type="text" name="search" placeholder="Search Treks" value="{{ search_query or '' }}">
-            <button type="submit" class="button btn-update">Search</button>
+            <button type="submit" class="button btn-update"><b>Search</b></button>
             
             {% if search_query %}
-                <a href="{{ url_for('admin_dashboard', section='treks') }}" class="button btn-clear">Clear Filter</a>
+                <button><a href="{{ url_for('admin_dashboard', section='treks') }}" class="button btn-clear"><b>Clear Filter</b></a></button>
             {% endif %}
         </form>
     </div>
@@ -75,7 +72,7 @@
 
 <div class="open-container">
     <h2 style="font-family: sans-serif;">Existing Treks</h2>
-    <table>
+    <table style="width: 99%;">
         <tr class="trek-header">
             <th>Name</th>
             <th>Location</th>
@@ -114,12 +111,12 @@
             </td>
             <td>
                 <a href="{{ url_for('edit_trek', trek_id=t.trek_id) }}">
-                    <button class="button btn-update">Edit</button>
+                    <button class="button btn-edit">&nbsp;<b>Edit</b>&nbsp;</button>
                 </a>
                 <form method="POST" action="{{ url_for('delete_trek', id=t.trek_id) }}"
                     onsubmit="return confirm('Are you sure you want to delete this trek?');">
                     <button type="submit" class="button btn-danger">
-                        Delete
+                        <b>Delete</b>
                     </button>
                 </form>
             </td>
@@ -133,13 +130,13 @@
 
 
 <div class="open-container">
-    <h2 style="font-family: sans-serif;">Add Trek</h2>
-    <table style="width: 97%;">
+    <h2 style="font-family: sans-serif;">Add New Trek</h2>
+    <table style="width: 100%;">
         <form method="POST" action="/add_trek">
             <tr class="input-form trek-header-7" style="width: 97%;">
                 <td>
                     <label for="name">Trek Name</label>
-                    <input name="name" placeholder="Name">
+                    <input required name="name" placeholder="Name">
                 </td>
                 <td><label>Location:</label>
                     <input type="text" name="location" required placeholder="Enter location">
@@ -180,7 +177,7 @@
                     </select>
                 </td>
                 <td>
-                    <button class="button btn-update" type="submit">Add Trek</button>
+                    <button class="button btn-update" type="submit"><b>Add Trek</b></button>
                 </td>
             </tr>
         </form>
@@ -199,9 +196,9 @@
     <form method="GET" action="{{ url_for('admin_dashboard') }}">
         <input type="hidden" name="section" value="staff">
         <input type="text" name="search" placeholder="Search Staff" value="{{ search_query or '' }}">
-        <button type="submit" class="button btn-update">Search</button>
+        <button type="submit" class="button btn-update"><b>Search</b></button>
         {% if search_query %}
-            <a href="{{ url_for('admin_dashboard', section='staff') }}" class="button btn-clear">Clear Filter</a>
+            <button><a href="{{ url_for('admin_dashboard', section='staff') }}" class="button btn-clear"><b>Clear Filter</b></a></button>
         {% endif %}
     </form>
 </div>
@@ -218,8 +215,8 @@
             <td>{{s.username}}</td>
             <td>{{s.email}}</td>
             <td>
-                <button class="button btn-danger"><a href="/blacklist/{{ s.user_id }}">Block</a></button>
-                <button class="button btn-update"><a href="/remove_staff/{{s.user_id}}">Remove</a></button>
+                <button class="button btn-update"><a href="/remove_staff/{{s.user_id}}"><b>Remove Staff</b></a></button>
+                <button class="button btn-danger"><a href="/blacklist/{{ s.user_id }}"><b>Block</b></a></button>
             </td>
         </tr>
         {%endfor%}
@@ -241,8 +238,8 @@
             <td>{{s.username}}</td>
             <td>{{s.email}}</td>
             <td>
-                <button class="button btn-approve"><a href="/approve_staff/{{s.user_id}}">Approve</a></button>
-                <button class="button btn-danger"><a href="/blacklist/{{ s.user_id }}">Block</a></button>
+                <button class="button btn-approve"><a href="/approve_staff/{{s.user_id}}"><b>Approve</b></a></button>
+                <button class="button btn-danger"><a href="/blacklist/{{ s.user_id }}"><b>Block</b></a></button>
             </td>
         </tr>
         {%endfor%}
@@ -265,7 +262,7 @@
             <td>{{s.username}}</td>
             <td>{{s.email}}</td>
             <td>
-                <button class="button btn-approve"><a href="/remove_staff_blacklist/{{s.user_id}}">Unblock</a></button>
+                <button class="button btn-approve"><a href="/remove_staff_blacklist/{{s.user_id}}"><b>Unblock</b></a></button>
             </td>
         </tr>
         {%endfor%}
@@ -282,9 +279,9 @@
     <form method="GET" action="{{ url_for('admin_dashboard') }}">
         <input type="hidden" name="section" value="users">
         <input type="text" name="search" placeholder="Search Users" value="{{ search_query or '' }}">
-        <button type="submit" class="button btn-update">Search</button>
+        <button type="submit" class="button btn-update"><b>Search</b></button>
         {% if search_query %}
-            <a href="{{ url_for('admin_dashboard', section='users') }}" class="button btn-clear">Clear Filter</a>
+            <button><a href="{{ url_for('admin_dashboard', section='users') }}" class="button btn-clear"><b>Clear Filter</b></a></button>
         {% endif %}
     </form>
 </div>
@@ -301,7 +298,7 @@
         <tr class="trek-row-3">
             <td>{{u.username}}</td>
             <td>{{u.email}}</td>
-            <td><button class="button btn-danger"><a href="/blacklist/{{u.user_id}}">Block</a></button></td>
+            <td><button class="button btn-danger"><a href="/blacklist/{{u.user_id}}"><b>Block</b></a></button></td>
         </tr>
         {%endfor%}
     </table>
@@ -320,7 +317,7 @@
         <tr class="trek-row-3">
             <td>{{u.username}}</td>
             <td>{{u.email}}</td>
-            <td><button class="button btn-approve"><a href="/remove_user_blacklist/{{u.user_id}}">Unblock</a></button>
+            <td><button class="button btn-approve"><a href="/remove_user_blacklist/{{u.user_id}}"><b>Unblock</b></a></button>
             </td>
         </tr>
         {%endfor%}
@@ -363,8 +360,8 @@
                 <td>
                     {% if b.booking_status == 'pending' %}
                     <form method="post" action="{{ url_for('update_booking_status', id=b.booking_id) }}">
-                        <button class="button btn-approve" name="status" value="approved">Approve</button>
-                        <button class="button btn-danger" name="status" value="cancelled">Decline</button>
+                        <button class="button btn-approve" name="status" value="approved"><b>Approve</b></button>
+                        <button class="button btn-danger" name="status" value="cancelled"><b>Decline</b></button>
                     </form>
                     {% else %}
                     -

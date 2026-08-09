@@ -28,6 +28,7 @@
             <th>Location</th>
             <th>Duration</th>
             <th>Status</th>
+            <th>Registered Users</th>
         </tr>
         {%for d in data%}
         <tr class="trek-row-5">
@@ -35,6 +36,7 @@
             <td>{{d.location}}</td>
             <td>{{d.duration}}</td>
             <td>{{d.status}}</td>
+            <td>{{ d.bookings | selectattr('booking_status','equalto','approved') | list | length }}</td>
         </tr>{%endfor%}
     </table>
 
@@ -51,9 +53,10 @@
     <form method="GET" action="{{ url_for('staff_dashboard') }}">
         <input type="hidden" name="section" value="treks">
         <input type="text" name="search" placeholder="Search Your Treks" value="{{ search_query or '' }}">
-        <button type="submit" class="button btn-update">Search</button>
+        <button type="submit" class="button btn-update"><b>Search</b></button>
         {% if search_query %}
-            <a href="{{ url_for('staff_dashboard', section='treks') }}" class="button btn-clear">Clear Filter</a>
+        <button><a href="{{ url_for('staff_dashboard', section='treks') }}" class="button btn-clear"><b>Clear
+                    Filter</b></a></button>
         {% endif %}
     </form>
 </div>
@@ -75,12 +78,12 @@
         <tr class="trek-row-7">
             <td>{{ t.name }}</td>
             <td>{{ t.location }}</td>
-            <td>{{ t.bookings | length }}</td>
+            <td>{{ t.bookings | selectattr('booking_status','equalto','approved') | list | length }}</td>
             <td>{{ t.slots }}</td>
             <td>
                 <form method="POST" action="/update_slots_staff/{{ t.trek_id }}">
-                    <input type="number" name="slots" value="{{ t.slots }}" min="1">
-                    <button class="button btn-update" type="submit">Update</button>
+                    <input type="number" name="slots" value="{{ t.slots }}">
+                    <button class="button btn-update" type="submit"><b>Update</b></button>
                 </form>
             </td>
             <td>
@@ -88,16 +91,15 @@
             </td>
 
             <td>
-                <span>Update Status</span>
                 <form method="post" action="{{ url_for('update_status', id=t.trek_id) }}">
                     <select name="status">
-                        <option value="open" {% if t.status=='Open' %}selected{% endif %}>Open</option>
-                        <option value="closed" {% if t.status=='Closed' %}selected{% endif %}>Closed</option>
-                        <option value="ongoing" {% if t.status=='Ongoing' %}selected{% endif %}>Ongoing</option>
-                        <option value="completed" {% if t.status=='Completed' %}selected{% endif %}>Completed</option>
+                        <option value="Open" {% if t.status=='Open' %}selected{% endif %}>Open</option>
+                        <option value="Closed" {% if t.status=='Closed' %}selected{% endif %}>Closed</option>
+                        <option value="Ongoing" {% if t.status=='Ongoing' %}selected{% endif %}>Ongoing</option>
+                        <option value="Completed" {% if t.status=='Completed' %}selected{% endif %}>Completed</option>
                     </select>
-                    <button class="button btn-update" type="submit">Update</button>
                 </form>
+                <button class="button btn-update" type="submit"><b>Update</b></button>
             </td>
 
         </tr>
@@ -112,8 +114,8 @@
                         {% if b.booking_status == 'pending' %}
                         <form method="post" action="{{ url_for('update_booking_status', id=b.booking_id) }}"
                             style="display:inline;">
-                            <button class="button btn-approve" name="status" value="approved">Approve</button>
-                            <button class="button btn-danger" name="status" value="cancelled">Decline</button>
+                            <button class="button btn-approve" name="status" value="approved"><b>Approve</b></button>
+                            <button class="button btn-danger" name="status" value="cancelled"><b>Decline</b></button>
                         </form>
                         {% endif %}
                     </li>
@@ -149,7 +151,7 @@
         <form method="POST">
             <input type="text" name="username" value="{{ user.username }}" required
                 style="width:100%; padding:8px; margin-bottom:10px;">
-            <button class="button btn-approve" name="update_username">Update Username</button>
+            <button class="button btn-approve" name="update_username"><b>Update Username</b></button>
         </form>
     </div>
 
@@ -159,7 +161,7 @@
         <form method="POST">
             <input type="email" name="email" value="{{ user.email }}" required
                 style="width:100%; padding:8px; margin-bottom:10px;">
-            <button class="button btn-approve" name="update_email">Update Email</button>
+            <button class="button btn-approve" name="update_email"><b>Update Email</b></button>
         </form>
     </div>
 
@@ -170,7 +172,7 @@
         <form method="POST">
             <input type="password" name="password" placeholder="New Password" required
                 style="width:100%; padding:8px; margin-bottom:10px;">
-            <button class="button btn-approve" name="update_password">Update Password</button>
+            <button class="button btn-approve" name="update_password"><b>Update Password</b></button>
         </form>
     </div>
 

@@ -2,40 +2,67 @@
 {% block title %}Edit-Trek{% endblock %}
 
 {% block content %}
+<div class="input-form" style="background-color: beige;">
 
-<form method="POST">
+    <form method="POST">
+        <h2 class="center"><strong>Edit Trek - {{trek.name}}</strong></h2><br>
+        <table class="center">
+            <tr>
+                <td>
+                    <label>Name:</label>
+                    <input type="text" name="name" value="{{ trek.name }}" required>
+                </td>
+            </tr>
 
-    <label>Name:</label>
-    <input type="text" name="name" value="{{ trek.name }}" required>
+            <tr>
+                <td>
+                    <label>Location:</label>
+                    <input type="text" name="location" value="{{ trek.location }}" required>
+                </td>
+            </tr>
 
-    <label>Location:</label>
-    <input type="text" name="location" value="{{ trek.location }}" required>
+            <tr>
+                <td>
+                    <label>Total Slots:</label>
+                    <input type="number" name="slots" value="{{ trek.slots }}">
+                </td>
+            </tr>
 
-    <label>Total Slots:</label>
-    <input type="number" name="slots" value="{{ trek.slots }}" min="1">
+            <tr>
+                <td>
+                    <label>Status:</label>
+                    <select name="status">
+                        <option value="Open" {% if trek.status=='Open' %}selected{% endif %}>Open</option>
+                        <option value="Ongoing" {% if trek.status=='Ongoing' %}selected{% endif %}>Ongoing</option>
+                        <option value="Closed" {% if trek.status=='Closed' %}selected{% endif %}>Closed</option>
+                        <option value="Completed" {% if trek.status=='Completed' %}selected{% endif %}>Completed
+                        </option>
+                    </select>
+                </td>
+            </tr>
 
-    <label>Status:</label>
-    <select name="status">
-        <option value="Open" {% if trek.status == 'Open' %}selected{% endif %}>Open</option>
-        <option value="Ongoing" {% if trek.status == 'Ongoing' %}selected{% endif %}>Ongoing</option>
-        <option value="Closed" {% if trek.status == 'Closed' %}selected{% endif %}>Closed</option>
-        <option value="Completed" {% if trek.status == 'Completed' %}selected{% endif %}>Completed</option>
-    </select>
+            <tr>
+                <td>
+                    <label>Assign Staff:</label>
+                    <select name="staff_id">
+                        <option value="">Select Staff</option>
+                        {% for s in staff %}
+                        <option value="{{ s.user_id }}" {% if trek.staff and trek.staff.user_id==s.user_id %}selected{%
+                            endif %}>
+                            {{ s.username }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <button class="button btn-approve" type="submit"><b>Save Changes</b></button>
+                </td>
+            </tr>
 
-    <label>Assign Staff:</label>
-    <select name="staff_id">
-        <option value="">Select Staff</option>
-        {% for s in staff %}
-        <option value="{{ s.user_id }}"
-            {% if trek.staff and trek.staff.user_id == s.user_id %}selected{% endif %}>
-            {{ s.username }}
-        </option>
-        {% endfor %}
-    </select>
+        </table>
 
-    <br><br>
-    <button class="button btn-update" type="submit">Save Changes</button>
-
-</form>
-
+    </form>
+</div>
 {% endblock %}

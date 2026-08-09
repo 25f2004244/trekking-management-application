@@ -22,11 +22,9 @@
 <h1 style="display: block; text-align: center;">Welcome User</h1>
 
 <h2 style="font-family: sans-serif;">Dashboard</h2>
-<h2>Your Bookings</h2>
+<h2>Bookings History</h2>
 
 <div class="open-container">
-
-
     <table style="width: 97%;">
         <tr class="trek-header-3">
             <th>Trek Name</th>
@@ -52,9 +50,9 @@
     <form method="GET" action="{{ url_for('user_dashboard') }}">
         <input type="hidden" name="section" value="treks">
         <input type="text" name="search" placeholder="Search Treks" value="{{ search_query or '' }}">
-        <button type="submit" class="button btn-update">Search</button>
+        <button type="submit" class="button btn-update"><b>Search</b></button>
         {% if search_query %}
-        <a href="{{ url_for('user_dashboard', section='treks') }}" class="button btn-clear">Clear Filter</a>
+        <button><a href="{{ url_for('user_dashboard', section='treks') }}" class="button btn-clear"><b>Clear Filter</b></a></button>
         {% endif %}
     </form>
 </div>
@@ -89,7 +87,7 @@
                 Slots Full
                 {% else %}
                 <form action="/book_trek/{{ t.trek_id }}" method="POST">
-                    <button class="button btn-approve" type="submit">Book</button>
+                    <button class="button btn-approve" type="submit"><b>Register</b></button>
                 </form>
                 {% endif %}
             </td>
@@ -113,7 +111,7 @@
     <form method="POST">
         <h4>Change Username</h4>
         <input type="text" name="username" value="{{ user.username }}" required placeholder="New Username">
-        <button class="button btn-approve" name="update_username">Update Username</button>
+        <button class="button btn-approve" name="update_username"><b>Update Username</b></button>
     </form>
 
     <hr>
@@ -122,7 +120,7 @@
     <form method="POST">
         <h4>Change Email</h4>
         <input type="email" name="email" value="{{ user.email }}" required placeholder="New Email">
-        <button class="button btn-approve" name="update_email">Update Email</button>
+        <button class="button btn-approve" name="update_email"><b>Update Email</b></button>
     </form>
 
     <hr>
@@ -131,7 +129,7 @@
     <form method="POST">
         <h4>Change Password</h4>
         <input type="password" name="password" placeholder="New Password" required>
-        <button class="button btn-approve" name="update_password">Update Password</button>
+        <button class="button btn-approve" name="update_password"><b>Update Password</b></button>
     </form>
 
 </div>
