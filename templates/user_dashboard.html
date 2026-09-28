@@ -111,7 +111,7 @@
     <form method="POST">
         <h4>Change Username</h4>
         <input type="text" name="username" value="{{ user.username }}" required placeholder="New Username">
-        <button class="button btn-approve" name="update_username"><b>Update Username</b></button>
+        <button class="button btn-approve" name="update_username" onsubmit="return ('Are you sure to change username?')"><b>Update Username</b></button>
     </form>
 
     <hr>

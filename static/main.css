@@ -56,6 +56,8 @@ button {
     padding: 10px 25px;
     border-radius: 6px;
     text-decoration: none;
+    animation: forwards;
+    animation-duration: 1s;
 }
 .button a {
     color: white;
@@ -150,7 +152,7 @@ button {
 
 .dashboard-cards {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(3, 1fr);
     gap: 20px;
     padding: 20px;
 }
@@ -163,6 +165,14 @@ button {
     border-radius: 10px;
     box-shadow: 0 4px 10px rgba(0,0,0,0.1);
     text-align: center;
+    text-decoration: none;
+}
+.card:hover{
+    animation: ease-out;
+    animation-duration: 1s;
+    animation-delay: 0.2s;
+    transition: linear;
+
 }
 
 

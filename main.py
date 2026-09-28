@@ -30,49 +30,28 @@ def home():
     return render_template('home.html')
 
 
-
-
 ######################################## LOGIN ####################################################
-@app.route('/user_login',methods=['GET','POST'])
-def user_login():
+@app.route('/login',methods=['GET','POST'])
+def login():
     if request.method=='GET':
-        return render_template('user_login.html')
-    
+        return render_template('login.html')
     elif request.method=='POST':
+        role = request.form.get('role')
         email = request.form.get('email')
         password = request.form.get('password')
-        check_user = user_model.query.filter_by(email=email,password=password,role='user',is_active=True).first()
-
-        if check_user:
-            session['user_id'] = check_user.user_id
-            session['role'] = check_user.role
-            return redirect(url_for('user_dashboard'))
+        check_email = user_model.query.filter_by(email=email,password=password,role=role,is_active=True).first()
+        if check_email:
+            session['user_id']=check_email.user_id
+            session['role']=check_email.role
+            if role=='user':
+                return redirect(url_for('user_dashboard'))
+            elif role=='staff':
+                if check_email.is_approved==True:
+                    return redirect(url_for('staff_dashboard'))
+                else:
+                    return render_template('login.html',msg='Please wait for admin approval!')
         else:
-            return render_template('user_login.html')
-
-
-
-@app.route('/staff_login',methods=['GET','POST'])
-def staff_login():
-    if request.method=='GET':
-        return render_template('staff_login.html')
-    
-    elif request.method=='POST':
-        email = request.form.get('email')
-        password = request.form.get('password')
-        check_staff = user_model.query.filter_by(email=email,password=password,role='staff',is_active=True,is_approved=True).first()
-
-        if check_staff:
-            if not (check_staff.is_approved):
-                return render_template('staff_login.html', error="Wait for admin approval")
-
-            session['user_id'] = check_staff.user_id
-            session['role'] = check_staff.role
-            return redirect(url_for('staff_dashboard'))
-        else:
-            return render_template('staff_login.html',error="Invalid credentials")
-
-
+            return render_template('login.html',msg="Invalid Credentials!")
 
 
 @app.route('/admin_login',methods=['GET','POST'])
@@ -90,7 +69,7 @@ def admin_login():
             session['role'] = check_admin.role
             return redirect(url_for('admin_dashboard'))
         else:
-            return render_template('admin_login.html',error="Invalid credentials")
+            return render_template('admin_login.html',msg="Invalid credentials")
 
 
 
@@ -107,23 +86,28 @@ def signup():
         email = request.form.get('email')
         password = request.form.get('password')
         role = request.form.get('role')
+        age = int(request.form.get('age'))
+        gender = request.form.get('gender')
 
-        if role not in ('user', 'staff'):
-            return "Invalid role"
-        check_user = user_model.query.filter_by(email=email).first()
+        if age>=18:
+            if role not in ('user', 'staff'):
+                return render_template('home.html',msg="Invalid role")
+            check_user = user_model.query.filter_by(email=email).first()
 
-        if check_user:
-            return render_template('home.html')
-        if role == 'staff':
-            is_approved = False
+            if check_user:
+                return render_template('home.html',msg='User Already Exist')
+            if role == 'staff':
+                is_approved = False
+            else:
+                is_approved = True
+
+            user_details = user_model(username=username,email=email,password=password,role=role,is_approved=is_approved,age=age,gender=gender)
+            db.session.add(user_details)
+            db.session.commit()
+            return render_template('home.html',msg='Signup Successful')
+
         else:
-            is_approved = True
-
-        user_details = user_model(username=username,email=email,password=password,role=role,is_approved=is_approved)
-        db.session.add(user_details)
-        db.session.commit()
-
-        return render_template('home.html')
+            return render_template('home.html',msg='Person with age less than 18 is not allowed!')
 
 
 
@@ -321,7 +305,7 @@ def edit_trek(trek_id):
 @app.route('/user_dashboard',methods=['GET','POST'])
 def user_dashboard():
     if 'role' not in session or session['role'] != 'user':
-        return redirect(url_for('user_login'))
+        return redirect(url_for('login'))
 
     section = request.args.get('section','dashboard')
     data=None
@@ -365,7 +349,7 @@ def user_dashboard():
 @app.route('/book_trek/<int:id>', methods=['POST'])
 def book_trek(id):
     if 'role' not in session or session['role'] != 'user':
-        return redirect(url_for('user_login'))
+        return redirect(url_for('login'))
 
     existing = booking_model.query.filter_by(user_id=session['user_id'],trek_id=id).first()
 
@@ -398,7 +382,7 @@ def book_trek(id):
 @app.route('/staff_dashboard',methods=['GET','POST'])
 def staff_dashboard():
     if 'role' not in session or session['role']!='staff':
-        return redirect(url_for('staff_login'))
+        return redirect(url_for('login'))
 
     user = user_model.query.get(session['user_id'])
 
@@ -408,6 +392,8 @@ def staff_dashboard():
     if request.method == 'POST' and section == 'settings':
         if 'update_username' in request.form:
             user.username = request.form.get('username')
+            return render_template('user_dashboard.html',section='settings',u_msg='Username Updated!')
+            
 
         elif 'update_email' in request.form:
             new_email = request.form.get('email')
@@ -441,7 +427,7 @@ def staff_dashboard():
 @app.route('/update_slots_staff/<int:id>', methods=['POST'])
 def update_slots_staff(id):
     if 'role' not in session or session['role'] != 'staff':
-        return redirect(url_for('staff_login'))
+        return redirect(url_for('login'))
     trek = trek_model.query.filter_by(
         trek_id=id,
         assigned_staff=session['user_id']
