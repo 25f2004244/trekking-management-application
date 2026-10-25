@@ -9,18 +9,25 @@
         <table class="center">
             <tr>
                 <td><span>Registering as </span></td>
-                <td><select name="role">
-                        <option value="user">User</option>
-                        <option value="staff">Staff</option>
-                    </select>
+                <td>
+                    <div class="role-toggle">
+                        <input type="radio" name="role" id="role-user" value="user" checked>
+                        <label for="role-user">User</label>
+
+                        <input type="radio" name="role" id="role-staff" value="staff">
+                        <label for="role-staff">Staff</label>
+                    </div>
                 </td>
             </tr>
             <tr>
                 <td><label for="gender">Gender</label></td>
-                <td><select name="gender">
+                <td>
+                    <select name="gender" id="gender">
                         <option value="male">Male</option>
                         <option value="female">Female</option>
-                    </select></td>
+                        <option value="other">Other</option>
+                    </select>
+                </td>
             </tr>
             <tr>
                 <td><label for="name">Full Name</label></td>
@@ -28,7 +35,7 @@
             </tr>
             <tr>
                 <td><label for="age">Age</label></td>
-                <td><input type="number" name="age" placeholder="Age"></td>
+                <td><input type="number" name="age" id="age" placeholder="Age" min="18"></td>
             </tr>
 
             <tr>

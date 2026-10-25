@@ -1,5 +1,6 @@
 from flask import Flask, render_template,redirect,url_for,request,session
 from model import db, user as user_model , trek as trek_model , booking as booking_model
+from seed import seed_database
 
 
 app = Flask(__name__)
@@ -11,18 +12,7 @@ db.init_app(app)
 
 with app.app_context():
     db.create_all()
-
-
-with app.app_context():
-    username = 'admin'
-    role = 'admin'
-    password= 'admin'
-    email = 'admin@gmail.com'
-    check_admin=user_model.query.filter_by(email=email,role=role).first()
-    if not check_admin:
-        admin_details = user_model(username=username,email=email,password=password, role=role,is_approved=True)
-        db.session.add(admin_details)
-        db.session.commit()
+    seed_database()
 
 
 @app.route("/")
@@ -87,6 +77,7 @@ def signup():
         password = request.form.get('password')
         role = request.form.get('role')
         age = int(request.form.get('age'))
+        age=int(age) if age else None
         gender = request.form.get('gender')
 
         if age>=18:

@@ -5,11 +5,13 @@ db = SQLAlchemy()
 
 
 class user(db.Model):
-    user_id = db.Column(db.Integer , primary_key = True , autoincrement = True)
-    username = db.Column(db.String(50),nullable=False)
-    role=db.Column(db.String(5),nullable=False)
-    email=db.Column(db.String(50),unique=True,nullable=False)
-    password=db.Column(db.String(20),nullable=False)
+    user_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    username = db.Column(db.String(50), nullable=False)
+    role = db.Column(db.String(20), nullable=False)
+    email = db.Column(db.String(50), unique=True, nullable=False)
+    password = db.Column(db.String(20), nullable=False)
+    age = db.Column(db.Integer, nullable=True)
+    gender = db.Column(db.String(20), nullable=True)
     is_approved = db.Column(db.Boolean, default=False)
     is_active = db.Column(db.Boolean, default=True)
 

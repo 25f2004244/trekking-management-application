@@ -8,13 +8,19 @@
     <form method="post">
         <h3>Login here :</h3>
         <table class="center">
-            <tr>
-                <td><label for="role">Role</label></td>
-                <td><select name="role">
-                        <option value="user">User</option>
-                        <option value="staff">Staff</option>
-                    </select>
+                <td><span>Role</span></td>
+                <td>
+                    <div class="role-toggle">
+                        <input type="radio" name="role" id="role-user" value="user" checked>
+                        <label for="role-user">User</label>
+
+                        <input type="radio" name="role" id="role-staff" value="staff">
+                        <label for="role-staff">Staff</label>
+                    </div>
                 </td>
+            </tr>
+            <tr>
+                
             </tr>
             <tr>
                 <td><label for="email">Email Id</label></td>
